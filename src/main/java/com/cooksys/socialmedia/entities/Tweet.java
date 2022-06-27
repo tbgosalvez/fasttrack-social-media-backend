@@ -3,15 +3,7 @@ package com.cooksys.socialmedia.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,12 +16,15 @@ public class Tweet {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
-	@OneToOne
+
+	@ManyToOne
 	private User author;
-	
+
+	@Column(updatable = false)
 	private Timestamp posted;
-	
+
+	private boolean deleted = false;
+
 	@Column(nullable = true)
 	private String content;
 	
@@ -44,16 +39,14 @@ public class Tweet {
 	
 	@ManyToOne
 	private Tweet repost;
-	
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
-	
-	@ManyToMany
-	@JoinColumn(name = "hashtag_id")
-	private List<Hashtag> hashtags;
-	
-	private boolean deleted = false;
 
+	@ManyToMany(mappedBy = "tweetsInHashtag")
+	private List<Hashtag> hashtags;
+
+	@ManyToMany(mappedBy = "likedTweets")
+	private List<User> likedByUsers;
+
+	@ManyToMany(mappedBy = "mentionedTweets")
+	private List<User> mentionedByUsers;
 
 }

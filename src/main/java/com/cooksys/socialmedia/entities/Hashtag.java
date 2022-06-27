@@ -1,10 +1,9 @@
 package com.cooksys.socialmedia.entities;
 
 import java.sql.Timestamp;
+import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +22,12 @@ public class Hashtag {
 	private Timestamp firstUsed;
 	
 	private Timestamp lastUsed;
-	
 
+	@ManyToMany
+	@JoinTable(
+			name="tweet_hashtags",
+			joinColumns = @JoinColumn(name = "hashtag_id"),
+			inverseJoinColumns = @JoinColumn(name = "tweet_id")
+	)
+	private List<Tweet> tweetsInHashtag;
 }
