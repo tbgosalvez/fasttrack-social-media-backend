@@ -1,19 +1,23 @@
 package com.cooksys.socialmedia.entities;
 
+import java.util.List;
+
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@NoArgsConstructor
-@Data
+//@Entity
+//@NoArgsConstructor
+//@Data
 public class Context {
 
-	private Tweet target;
-	
-	private Tweet before;
-	
-	private Tweet after;
-	
+//	@Id
+//	private Tweet target;
+//
+//	private List<Tweet> before;
+//
+//	private List<Tweet> after;
+//
 }

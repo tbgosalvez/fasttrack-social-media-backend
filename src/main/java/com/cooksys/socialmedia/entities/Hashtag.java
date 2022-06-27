@@ -1,12 +1,10 @@
 package com.cooksys.socialmedia.entities;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +24,5 @@ public class Hashtag {
 	
 	private Timestamp lastUsed;
 	
-	@OneToMany(mappedBy = "hashtag")
-	private List<Tweet> tweets;
 
 }
