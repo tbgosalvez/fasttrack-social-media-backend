@@ -3,7 +3,9 @@ package com.cooksys.socialmedia.exceptions;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
