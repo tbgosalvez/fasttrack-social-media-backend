@@ -20,9 +20,11 @@ public class Hashtag {
 	@Column(unique = true)
 	private String label;
 
+	@GeneratedValue
 	@Column(updatable = false)
 	private Timestamp firstUsed;
-	
+
+	@GeneratedValue
 	private Timestamp lastUsed;
 
 	@ManyToMany

@@ -20,6 +20,7 @@ public class Tweet {
 	@ManyToOne
 	private User author;
 
+	@GeneratedValue
 	@Column(updatable = false)
 	private Timestamp posted;
 

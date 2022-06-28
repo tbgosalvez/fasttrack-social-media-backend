@@ -24,6 +24,7 @@ public class User {
 	@Embedded
 	private Profile profile;
 
+	@GeneratedValue
 	@Column(updatable = false)
 	private Timestamp joined;
 	
