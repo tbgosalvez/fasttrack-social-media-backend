@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TweetServiceImpl {
+public class TweetServiceImpl implements TweetService {
 
 }
