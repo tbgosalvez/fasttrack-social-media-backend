@@ -43,11 +43,11 @@ public class Seeder implements CommandLineRunner{
 	profile1.setFirstName("Kenny");
 	profile1.setLastName("Worth");
 	profile1.setPhone("(999)999-9999");
-	profile1.setDeleted(false);
 
 	user1.setCredentials(credentials1);
 	user1.setJoined(now);
 	user1.setProfile(profile1);
+	user1.setDeleted(false);
 	
 	////////////  User2  /////////////////////
 	
@@ -62,11 +62,12 @@ public class Seeder implements CommandLineRunner{
 	profile2.setFirstName("Vincent");
 	profile2.setLastName("Cheng");
 	profile2.setPhone("(555)555-5555");
-	profile2.setDeleted(false);
+	
 
 	user2.setCredentials(credentials2);
 	user2.setJoined(now);
 	user2.setProfile(profile2);
+	user2.setDeleted(false);
 	
 	////////////  User3  /////////////////////
 	
@@ -81,11 +82,12 @@ public class Seeder implements CommandLineRunner{
 	profile3.setFirstName("Timothy-Brian");
 	profile3.setLastName("Gosalvez");
 	profile3.setPhone("(111)867-5309");
-	profile3.setDeleted(false);
+
 
 	user3.setCredentials(credentials3);
 	user3.setJoined(now);
 	user3.setProfile(profile3);
+	user3.setDeleted(false);
 
 	userRepository.saveAll(Arrays.asList(user1, user2, user3));
 
