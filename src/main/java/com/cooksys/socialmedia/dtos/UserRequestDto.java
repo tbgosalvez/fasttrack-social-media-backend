@@ -1,6 +1,5 @@
 package com.cooksys.socialmedia.dtos;
 
-import com.cooksys.socialmedia.entities.Profile;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

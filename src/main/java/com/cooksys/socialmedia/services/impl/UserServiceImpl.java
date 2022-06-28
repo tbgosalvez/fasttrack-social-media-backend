@@ -20,7 +20,6 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	
-	
 	@Override
 	public List<UserResponseDto> getAllActiveUsers() {
 		List<User> users = userRepository.findAll();
