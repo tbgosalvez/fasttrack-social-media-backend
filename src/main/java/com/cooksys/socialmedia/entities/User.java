@@ -8,6 +8,8 @@ import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.springframework.data.annotation.CreatedDate;
+
 @Entity
 @NoArgsConstructor
 @Data
@@ -24,9 +26,11 @@ public class User {
 	@Embedded
 	private Profile profile;
 
-	@GeneratedValue
-	@Column(updatable = false)
-	private Timestamp joined;
+	@CreatedDate
+	@Column(nullable = false)
+	private Timestamp joined = Timestamp.valueOf(LocalDateTime.now());
+	
+	private boolean deleted = false;
 	
 	@OneToMany(mappedBy = "author")
 	private List<Tweet> tweets;
