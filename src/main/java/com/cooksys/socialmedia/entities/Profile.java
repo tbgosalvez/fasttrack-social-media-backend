@@ -22,4 +22,5 @@ public class Profile {
 	
 	private boolean deleted = false;
 
+
 }
