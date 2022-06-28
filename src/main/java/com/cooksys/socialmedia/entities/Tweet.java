@@ -8,6 +8,8 @@ import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.springframework.data.annotation.CreatedDate;
+
 @Entity
 @NoArgsConstructor
 @Data
@@ -20,13 +22,11 @@ public class Tweet {
 	@ManyToOne
 	private User author;
 
-	@GeneratedValue
-	@Column(updatable = false)
-	private Timestamp posted;
+	@CreatedDate
+	private Timestamp posted = Timestamp.valueOf(LocalDateTime.now());
 
 	private boolean deleted = false;
 
-	@Column(nullable = true)
 	private String content;
 	
 	@OneToMany(mappedBy = "inReply")
