@@ -92,17 +92,17 @@ public class Seeder implements CommandLineRunner{
 	////////// HashTags ///////////////////
 	
 	Hashtag hashtag1 = new Hashtag();
-	hashtag1.setLabel("#Winning");
+	hashtag1.setLabel("Winning");
 	hashtag1.setFirstUsed(now);
 	hashtag1.setLastUsed(now);
 	
 	Hashtag hashtag2 = new Hashtag();
-	hashtag2.setLabel("#NotWinning");
+	hashtag2.setLabel("NotWinning");
 	hashtag2.setFirstUsed(now);
 	hashtag2.setLastUsed(now);
 	
 	Hashtag hashtag3 = new Hashtag();
-	hashtag3.setLabel("#WhatWinning?");
+	hashtag3.setLabel("WhatWinning?");
 	hashtag3.setFirstUsed(now);
 	hashtag3.setLastUsed(now);
 
