@@ -16,9 +16,11 @@ public class Hashtag {
 	@Id
 	@GeneratedValue
 	private Long id;
-	
+
+	@Column(unique = true)
 	private String label;
-	
+
+	@Column(updatable = false)
 	private Timestamp firstUsed;
 	
 	private Timestamp lastUsed;
