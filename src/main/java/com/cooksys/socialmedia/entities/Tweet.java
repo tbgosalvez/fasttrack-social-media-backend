@@ -8,8 +8,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,7 @@ public class Tweet {
 	@GeneratedValue
 	private Long id;
 	
+	@OneToOne
 	private User author;
 	
 	private Timestamp posted;
@@ -30,25 +33,27 @@ public class Tweet {
 	@Column(nullable = true)
 	private String content;
 	
-	// How to map these, OneToMany or ManyToOne
-	@Column(nullable = true)
-	private Tweet inReplyTo;
+	@OneToMany(mappedBy = "inReply")
+	private List<Tweet> inReplyTo;
 	
-	@Column(nullable = true)
-	private Tweet repostOf;
+	@ManyToOne
+	private Tweet inReply;
+	
+	@OneToMany(mappedBy = "repost")
+	private List<Tweet> repostOf;
+	
+	@ManyToOne
+	private Tweet repost;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
 	
-	@OneToMany(mappedBy = "tweet")
-	private List<User> likes;
-	
-	@OneToMany(mappedBy = "tweet")
-	private List<User> mentions;
-	
-	@OneToMany(mappedBy = "tweet")
+	@ManyToMany
+	@JoinColumn(name = "hashtag_id")
 	private List<Hashtag> hashtags;
 	
+	private boolean deleted = false;
+
 
 }

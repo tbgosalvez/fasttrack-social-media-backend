@@ -3,15 +3,15 @@ package com.cooksys.socialmedia.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.springframework.context.annotation.Profile;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,9 +26,6 @@ public class User {
 	@GeneratedValue
 	private Long id;
 	
-	@Column(unique = true)
-	private String username;
-	
 	@Embedded
 	private Credentials credentials;
 	
@@ -37,20 +34,22 @@ public class User {
 	
 	private Timestamp joined;
 	
-	@OneToMany(mappedBy = "user_table")
-	private List<User> followers;
-	
-	@OneToMany(mappedBy = "user_table")
-	private List<User> following;
-	
-	@OneToMany(mappedBy = "user_table")
+	@OneToMany(mappedBy = "user")
 	private List<Tweet> tweets;
 	
-	@OneToMany(mappedBy = "user_table")
-	private List<User> likes;
+	@ManyToMany
+	@JoinColumn(name = "tweet_id")
+	private List<Tweet> likes;
 	
-	@OneToMany(mappedBy = "user_table")
+	@ManyToMany
+	@JoinTable
 	private List<User> mentions;
 	
+	@ManyToMany
+	@JoinTable
+	private List<User> followers;
+	
+	@ManyToMany(mappedBy = "followers")
+	private List<User> following;
 	
 }
