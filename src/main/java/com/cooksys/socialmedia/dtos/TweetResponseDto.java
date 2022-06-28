@@ -11,7 +11,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @Data
 public class TweetResponseDto {
-    private int id;
+    private Long id;
     private User author;
     private Timestamp posted;
     private Optional<String> content;
