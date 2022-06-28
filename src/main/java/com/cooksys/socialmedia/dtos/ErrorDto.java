@@ -8,9 +8,5 @@ import lombok.NoArgsConstructor;
 public class ErrorDto {
 	
 	private String message;
-	
-	public ErrorDto(String string) {
-		message = string;
-	}
 
 }
