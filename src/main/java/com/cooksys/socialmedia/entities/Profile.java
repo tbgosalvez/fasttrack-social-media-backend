@@ -20,7 +20,4 @@ public class Profile {
 	
 	private String phone;
 	
-	private boolean deleted = false;
-
-
 }
