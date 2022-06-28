@@ -8,6 +8,9 @@ import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 @Entity
 @NoArgsConstructor
 @Data
@@ -17,15 +20,16 @@ public class Hashtag {
 	@GeneratedValue
 	private Long id;
 
-	@Column(unique = true)
+	@Column(nullable = false, unique = true)
 	private String label;
 
-	@GeneratedValue
-	@Column(updatable = false)
-	private Timestamp firstUsed;
+	@CreatedDate
+	@Column(nullable = false,)
+	private Timestamp firstUsed = Timestamp.valueOf(LocalDateTime.now());
 
-	@GeneratedValue
-	private Timestamp lastUsed;
+	@LastModifiedDate
+	@Column(nullable = false)
+	private Timestamp lastUsed = Timestamp.valueOf(LocalDateTime.now());
 
 	@ManyToMany
 	@JoinTable(
