@@ -15,9 +15,9 @@ import com.cooksys.socialmedia.exceptions.NotFoundException;
 
 @ControllerAdvice(basePackages = { "com.cooksys.socialmedia.controllers" })
 @ResponseBody
-@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class SocialMediaControllerAdvice {
-
+	
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(BadRequestException.class)
 	public ErrorDto handleBadRequestException(HttpServletRequest request, BadRequestException badRequestException) {
 		return new ErrorDto(badRequestException.getMessage());
