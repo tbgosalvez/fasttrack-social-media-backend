@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class Credentials {
 
-	@Column(unique = true)
+	@Column(nullable = false, unique = true)
 	private String username;
 	
+	@Column(nullable = false)
 	private String password;
 
 }
