@@ -15,6 +15,6 @@ public class TweetResponseDto {
     private User author;
     private Timestamp posted;
     private Optional<String> content;
-    private Optional<Tweet> inReplyTo;
-    private Optional<Tweet> repostOf;
+    private Optional<TweetRequestDto> inReplyTo;
+    private Optional<TweetRequestDto> repostOf;
 }
