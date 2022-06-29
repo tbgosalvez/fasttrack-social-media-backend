@@ -1,7 +1,6 @@
 package com.cooksys.socialmedia.mappers;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.mapstruct.Mapper;
 
@@ -13,9 +12,7 @@ import com.cooksys.socialmedia.entities.Tweet;
 public interface TweetMapper {
 	
     TweetResponseDto entityToDto(Tweet tweet);
-    
-    Tweet optionalToEntity(Optional<Tweet> tweet);
-	
+    	
 	Tweet responseDtoToEntity(TweetResponseDto tweetResponseDto);
 	
 	Tweet requestDtoToEntity(TweetRequestDto tweetRequestDto);
