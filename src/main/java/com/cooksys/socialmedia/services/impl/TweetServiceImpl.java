@@ -40,10 +40,10 @@ public class TweetServiceImpl implements TweetService {
 	@Override
 	public TweetResponseDto getTweetById(Long id) {
 		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
-		if(optionalTweet.isEmpty()) {
+		if (optionalTweet.isEmpty()) {
 			throw new NotFoundException("Tweet not found.");
 		}
-		if(optionalTweet.get().isDeleted()) {
+		if (optionalTweet.get().isDeleted()) {
 			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
 		}
 		return tweetMapper.entityToDto(optionalTweet.get());
@@ -52,20 +52,40 @@ public class TweetServiceImpl implements TweetService {
 	@Override
 	public List<TweetResponseDto> getReplies(Long id) {
 		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
-		if(optionalTweet.isEmpty()) {
+		if (optionalTweet.isEmpty()) {
 			throw new NotFoundException("Tweet not found.");
 		}
-		if(optionalTweet.get().isDeleted()) {
+		if (optionalTweet.get().isDeleted()) {
 			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
 		}
 		Tweet repliedTweet = optionalTweet.get();
 		List<Tweet> tweets = tweetRepository.findAll();
 		List<Tweet> replyTweets = new ArrayList<Tweet>();
-		for(Tweet tweet : tweets) {
-			if((repliedTweet.getInReplyTo().contains(tweet)) && !tweet.isDeleted()) {
+		for (Tweet tweet : tweets) {
+			if ((repliedTweet.getInReplyTo().contains(tweet)) && !tweet.isDeleted()) {
 				replyTweets.add(tweet);
 			}
 		}
 		return tweetMapper.entitiesToDtos(replyTweets);
+	}
+
+	@Override
+	public List<TweetResponseDto> getReposts(Long id) {
+		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
+		if (optionalTweet.isEmpty()) {
+			throw new NotFoundException("Tweet not found.");
+		}
+		if (optionalTweet.get().isDeleted()) {
+			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
+		}
+		Tweet repostedTweet = optionalTweet.get();
+		List<Tweet> tweets = tweetRepository.findAll();
+		List<Tweet> repostedTweets = new ArrayList<Tweet>();
+		for (Tweet tweet : tweets) {
+			if ((repostedTweet.getRepostOf().contains(tweet)) && !tweet.isDeleted()) {
+				repostedTweets.add(tweet);
+			}
+		}
+		return tweetMapper.entitiesToDtos(repostedTweets);
 	}
 }

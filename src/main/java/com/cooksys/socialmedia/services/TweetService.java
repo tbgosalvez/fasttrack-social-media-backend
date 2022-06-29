@@ -14,4 +14,6 @@ public interface TweetService {
 
 	List<TweetResponseDto> getReplies(Long id);
 
+	List<TweetResponseDto> getReposts(Long id);
+
 }
