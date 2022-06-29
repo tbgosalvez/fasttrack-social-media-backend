@@ -41,6 +41,7 @@ public class ValidateServiceImpl implements ValidateService {
 		return false;
 	}
 
+
 	@Override
 	public boolean isUserNameAvailable(String username) {
 		List<User> users = userRepository.findAll();
