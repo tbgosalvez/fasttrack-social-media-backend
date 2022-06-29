@@ -2,11 +2,10 @@ package com.cooksys.socialmedia.controllers;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.cooksys.socialmedia.dtos.CredentialsDto;
+import com.cooksys.socialmedia.services.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.services.TweetService;
@@ -19,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class TweetController {
 	
 	private final TweetService tweetService;
+	private final UserService userService;
 	
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets(){
@@ -27,7 +27,7 @@ public class TweetController {
 	
 	@GetMapping("/{id}")
 	public TweetResponseDto getTweetById(@PathVariable Long id) {
-		return tweetService.getTweetById(id);
+		return tweetService.getTweetResponseById(id);
 	}
 	
 	@GetMapping("/{id}/replies")
@@ -38,5 +38,12 @@ public class TweetController {
 	@GetMapping("/{id}/reposts")
 	public List<TweetResponseDto> getReposts(@PathVariable Long id) {
 		return tweetService.getReposts(id);
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public TweetResponseDto deleteTweet(@PathVariable Long id, @RequestBody CredentialsDto creds) {
+		userService.validateCredentials(creds);
+		return tweetService.deleteTweet(id, creds);
 	}
 }

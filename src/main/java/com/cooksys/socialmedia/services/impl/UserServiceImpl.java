@@ -3,6 +3,9 @@ package com.cooksys.socialmedia.services.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cooksys.socialmedia.dtos.CredentialsDto;
+import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
+import com.cooksys.socialmedia.mappers.CredentialsMapper;
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.UserResponseDto;
@@ -19,16 +22,23 @@ public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+	private final CredentialsMapper credentialsMapper;
 	
 	@Override
 	public List<UserResponseDto> getAllActiveUsers() {
-		List<User> users = userRepository.findAll();
-		List<User> activeUsers = new ArrayList<User>();
-		for(User user : users) {
-			if(!user.isDeleted()) {
-				activeUsers.add(user);
-			}
-		}
+		List<User> activeUsers =
+				userRepository.findAll()
+						.stream()
+						.filter(user -> !user.isDeleted())
+						.toList();
+
 		return userMapper.entitiesToDtos(activeUsers);
+	}
+
+	// on success, do nothing for now
+	@Override
+	public void validateCredentials(CredentialsDto creds) throws NotAuthorizedException {
+		if(userRepository.findByCredentials(credentialsMapper.dtoToEntity(creds)).isEmpty())
+			throw new NotAuthorizedException("Username & password do not match (or user does not exist).");
 	}
 }

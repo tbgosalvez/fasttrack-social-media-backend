@@ -2,18 +2,22 @@ package com.cooksys.socialmedia.services;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
+import com.cooksys.socialmedia.dtos.CredentialsDto;
 
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.entities.Tweet;
 
 public interface TweetService {
 
+	Tweet getTweetById(Long id);
+
 	List<TweetResponseDto> getAllTweets();
 
-	TweetResponseDto getTweetById(Long id);
+	TweetResponseDto getTweetResponseById(Long id);
 
 	List<TweetResponseDto> getReplies(Long id);
 
 	List<TweetResponseDto> getReposts(Long id);
 
+    TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto);
 }
