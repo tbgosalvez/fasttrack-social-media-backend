@@ -20,6 +20,6 @@ public class UserController {
 
 	@GetMapping
 	public List<UserResponseDto> getAllActiveUsers() {
-		return userService.getAllActiveUsers();
+		return userService.getAllActiveUserResponseDtos();
 	}
 }

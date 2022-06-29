@@ -1,27 +1,34 @@
 package com.cooksys.socialmedia.services.impl;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
 import com.cooksys.socialmedia.dtos.CredentialsDto;
-import org.springframework.stereotype.Service;
-
+import com.cooksys.socialmedia.dtos.TweetRequestDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.TweetService;
-
+import com.cooksys.socialmedia.services.UserService;
+import com.cooksys.socialmedia.services.ValidateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
 
 	private final TweetRepository tweetRepository;
+	private final UserService userService;
+	private final ValidateService validateService;
 	private final TweetMapper tweetMapper;
 
 	@Override
@@ -98,5 +105,42 @@ public class TweetServiceImpl implements TweetService {
 		tweetRepository.saveAndFlush(tweetToDelete.get());
 
 		return tweetMapper.entityToDto(tweetToDelete.get());
+	}
+
+	@Override
+	public TweetResponseDto createTweet(TweetRequestDto tweetReqDto) {
+		Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
+
+		postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
+
+		Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
+		parseForUserMentions(insertedTweet);
+
+		return tweetMapper.entityToDto(insertedTweet);
+	}
+
+	@Override
+	public void parseForUserMentions(Tweet tweet) {
+		Pattern pattern = Pattern.compile("@\\w+", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(tweet.getContent());
+
+		matcher.results()
+				.forEach(matchResult -> {
+					String username = matchResult.group().substring(1);
+					List<User> results = userService.getAllActiveUsers()
+							.stream()
+							.filter(user -> user.getCredentials().getUsername().equals(username))
+							.toList();
+
+					tweet.getMentionedUsers().addAll(results);
+					results.forEach(user -> user.getMentionedByTweets().add(tweet));
+					tweetRepository.saveAndFlush(tweet);
+					userService.updateUsers(results); // .saveAllAndFlush() to reduce database calls
+				});
+	}
+
+	@Override
+	public List<Hashtag> parseForHashtags(String content) {
+		return null;
 	}
 }
