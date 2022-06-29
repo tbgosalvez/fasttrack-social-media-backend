@@ -36,17 +36,17 @@ public class Tweet {
 
 	private String content;
 	
-	@OneToMany(mappedBy = "inReply")
-	private List<Tweet> inReplyTo;
+	@OneToMany(mappedBy = "inReplyTo")
+	private List<Tweet> replies;
 	
 	@ManyToOne
-	private Tweet inReply;
+	private Tweet inReplyTo;
 	
-	@OneToMany(mappedBy = "repost")
-	private List<Tweet> repostOf;
+	@OneToMany(mappedBy = "repostOf")
+	private List<Tweet> reposts;
 	
 	@ManyToOne
-	private Tweet repost;
+	private Tweet repostOf;
 
 	@ManyToMany(mappedBy = "tweetsInHashtag")
 	private List<Hashtag> hashtags;

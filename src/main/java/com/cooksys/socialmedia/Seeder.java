@@ -124,12 +124,12 @@ public class Seeder implements CommandLineRunner {
 		tweet3.setAuthor(user3);
 		tweet3.setContent("Classic!");
 		tweet3.setPosted(now);
-		tweet3.setInReply(tweet2);
+		tweet3.setInReplyTo(tweet2);
 		
 		Tweet tweet4 = new Tweet();
 		tweet4.setAuthor(user1);
 		tweet4.setPosted(now);
-		tweet4.setRepost(tweet2);;
+		tweet4.setRepostOf(tweet2);
 
 		tweetRepository.saveAll(Arrays.asList(tweet1, tweet2, tweet3, tweet4));
 

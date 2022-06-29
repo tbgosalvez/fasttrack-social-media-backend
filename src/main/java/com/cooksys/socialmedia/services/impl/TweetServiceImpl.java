@@ -1,10 +1,10 @@
 package com.cooksys.socialmedia.services.impl;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import com.cooksys.socialmedia.dtos.CredentialsDto;
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
@@ -25,67 +25,78 @@ public class TweetServiceImpl implements TweetService {
 	private final TweetMapper tweetMapper;
 
 	@Override
-	public List<TweetResponseDto> getAllTweets() {
-		List<Tweet> tweets = tweetRepository.findAll();
-		List<Tweet> activeTweets = new ArrayList<Tweet>();
-		for (Tweet tweet : tweets) {
-			if (!tweet.isDeleted()) {
-				activeTweets.add(tweet);
-			}
+	public Tweet getTweetById(Long id) {
+		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
+		if (optionalTweet.isEmpty()) {
+			throw new NotFoundException("Tweet not found.");
 		}
-		activeTweets.sort(Comparator.comparing(Tweet::getPosted));
+		if (optionalTweet.get().isDeleted()) {
+			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
+		}
+
+		return optionalTweet.get();
+	}
+
+	@Override
+	public TweetResponseDto getTweetResponseById(Long id) {
+		return tweetMapper.entityToDto(getTweetById(id));
+	}
+
+	@Override
+	public List<TweetResponseDto> getAllTweets() {
+		List<Tweet> activeTweets =
+				tweetRepository.findAll()
+						.stream()
+						.filter(tweet -> !tweet.isDeleted())
+						.sorted(Comparator.comparing(Tweet::getPosted))
+						.toList();
+
 		return tweetMapper.entitiesToDtos(activeTweets);
 	}
 
 	@Override
-	public TweetResponseDto getTweetById(Long id) {
-		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
-		if (optionalTweet.isEmpty()) {
-			throw new NotFoundException("Tweet not found.");
-		}
-		if (optionalTweet.get().isDeleted()) {
-			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
-		}
-		return tweetMapper.entityToDto(optionalTweet.get());
-	}
-
-	@Override
 	public List<TweetResponseDto> getReplies(Long id) {
-		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
-		if (optionalTweet.isEmpty()) {
-			throw new NotFoundException("Tweet not found.");
-		}
-		if (optionalTweet.get().isDeleted()) {
-			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
-		}
-		Tweet repliedTweet = optionalTweet.get();
-		List<Tweet> tweets = tweetRepository.findAll();
-		List<Tweet> replyTweets = new ArrayList<Tweet>();
-		for (Tweet tweet : tweets) {
-			if ((repliedTweet.getInReplyTo().contains(tweet)) && !tweet.isDeleted()) {
-				replyTweets.add(tweet);
-			}
-		}
+		Tweet repliedTweet = getTweetById(id);
+
+		List<Tweet> replyTweets =
+				tweetRepository.findAll()
+						.stream()
+						.filter(tweet -> repliedTweet.getReplies().contains(tweet) && !tweet.isDeleted())
+						.toList();
+
 		return tweetMapper.entitiesToDtos(replyTweets);
 	}
 
 	@Override
 	public List<TweetResponseDto> getReposts(Long id) {
-		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
-		if (optionalTweet.isEmpty()) {
-			throw new NotFoundException("Tweet not found.");
-		}
-		if (optionalTweet.get().isDeleted()) {
-			throw new NotAuthorizedException("Unable to get Tweet. Deleted");
-		}
-		Tweet repostedTweet = optionalTweet.get();
-		List<Tweet> tweets = tweetRepository.findAll();
-		List<Tweet> repostedTweets = new ArrayList<Tweet>();
-		for (Tweet tweet : tweets) {
-			if ((repostedTweet.getRepostOf().contains(tweet)) && !tweet.isDeleted()) {
-				repostedTweets.add(tweet);
-			}
-		}
+		Tweet originalTweet = getTweetById(id);
+
+		List<Tweet> repostedTweets =
+				tweetRepository.findAll()
+						.stream()
+						.filter(tweet -> originalTweet.getReposts().contains(tweet) && !tweet.isDeleted())
+						.toList();
+
 		return tweetMapper.entitiesToDtos(repostedTweets);
+	}
+
+	@Override
+	public TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto) {
+		Optional<Tweet> tweetToDelete = tweetRepository.findById(id);
+
+		if(tweetToDelete.isEmpty() || tweetToDelete.get().isDeleted())
+			throw new NotFoundException("Tweet not found.");
+
+		if(!tweetToDelete.get()
+				.getAuthor()
+				.getCredentials()
+				.getUsername()
+				.equals(credentialsDto.getUsername()))
+			throw new NotAuthorizedException("You can only delete a tweet that you wrote.");
+
+		tweetToDelete.get().setDeleted(true);
+		tweetRepository.saveAndFlush(tweetToDelete.get());
+
+		return tweetMapper.entityToDto(tweetToDelete.get());
 	}
 }
