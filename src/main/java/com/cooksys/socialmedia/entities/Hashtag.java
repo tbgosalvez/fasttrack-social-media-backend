@@ -1,15 +1,22 @@
 package com.cooksys.socialmedia.entities;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.*;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
@@ -24,7 +31,7 @@ public class Hashtag {
 	private String label;
 
 	@CreatedDate
-	@Column(nullable = false,)
+	@Column(nullable = false)
 	private Timestamp firstUsed = Timestamp.valueOf(LocalDateTime.now());
 
 	@LastModifiedDate

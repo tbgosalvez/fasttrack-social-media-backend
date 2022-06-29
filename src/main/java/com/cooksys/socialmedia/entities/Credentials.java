@@ -17,4 +17,5 @@ public class Credentials {
 	@Column(nullable = false)
 	private String password;
 
+
 }
