@@ -2,6 +2,7 @@ package com.cooksys.socialmedia.entities;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -53,8 +54,8 @@ public class User {
 	)
 	private List<Tweet> likedTweets = new ArrayList<>();
 
-	@ManyToMany(mappedBy = "mentionedByUsers")
-	private List<Tweet> mentionedByTweets = new ArrayList<>();
+	@ManyToMany(mappedBy = "mentionedUsers")
+	private List<Tweet> mentionedTweets = new ArrayList<>();
 	
 	@ManyToMany
 	@JoinTable(name = "followers_following")

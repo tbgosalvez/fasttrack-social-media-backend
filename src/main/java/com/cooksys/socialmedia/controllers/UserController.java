@@ -27,7 +27,7 @@ public class UserController {
 
 	@GetMapping
 	public List<UserResponseDto> getAllActiveUsers() {
-		return userService.getAllActiveUsers();
+		return userService.getAllActiveUserDtos();
 	}
 
 	
@@ -39,6 +39,7 @@ public class UserController {
 	@GetMapping("/@{username}")
 	public UserResponseDto getUserByName(@PathVariable String username) {
 		return userService.getUserByName(username);
+	}
 
 	@PostMapping
 	public UserResponseDto createUser(@RequestBody UserRequestDto userRequestDto) {

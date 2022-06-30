@@ -28,120 +28,130 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-	
-	private final UserRepository userRepository;
-	private final UserMapper userMapper;
-	private final CredentialsMapper credentialsMapper;
-	private final TweetMapper tweetMapper;
-	private final TweetRepository tweetRepository;
-  private final TweetService tweetService;
-  
-	
-	@Override
-	public List<UserResponseDto> getAllActiveUsers() {
-		List<User> activeUsers =
-				userRepository.findAll()
-						.stream()
-						.filter(user -> !user.isDeleted())
-						.toList();
 
-		return userMapper.entitiesToDtos(activeUsers);
-	}
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final CredentialsMapper credentialsMapper;
+    private final TweetMapper tweetMapper;
+    private final TweetRepository tweetRepository;
+    private final TweetService tweetService;
+    private final ValidateService validateService;
 
-	// on success, do nothing for now
-	@Override
-	public void validateCredentials(CredentialsDto creds) throws NotAuthorizedException {
-		if(userRepository.findByCredentials(credentialsMapper.dtoToEntity(creds)).isEmpty())
-			throw new NotAuthorizedException("Username & password do not match (or user does not exist).");
-	}
 
-	@Override
+    @Override
+    public List<User> getAllActiveUsers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> !user.isDeleted())
+                .toList();
+    }
+
+
+    @Override
+    public List<UserResponseDto> getAllActiveUserDtos() {
+        return userMapper.entitiesToDtos(getAllActiveUsers());
+    }
+
+    // on success, do nothing for now
+    @Override
+    public void validateCredentials(CredentialsDto creds) throws NotAuthorizedException {
+        if (userRepository.findByCredentials(credentialsMapper.dtoToEntity(creds)).isEmpty())
+            throw new NotAuthorizedException("Username & password do not match (or user does not exist).");
+    }
+
+    @Override
     public List<TweetResponseDto> getUserMentions(String username) {
-		User incomingUser = new User();
-		List<User> users = userRepository.findAll();
-		for (User user : users) {
-			if (user.getCredentials().getUsername().equals(username)) {
-				incomingUser = user;
-			}
-		}
-		List<Tweet> allTweets = tweetRepository.findAll(); 
-		List<Tweet> tweetsToReturn = new ArrayList<Tweet>();
-		for (Tweet tweet : allTweets) {
-			if(tweet.getMentionedByUsers().contains(incomingUser)&& !tweet.isDeleted()) {
-				tweetsToReturn.add(tweet);
-			}
-		}
-		return tweetMapper.entitiesToDtos(tweetsToReturn);
-    }	
-	@Override
-	public UserResponseDto getUserByName(String username) {
-		User incomingUser = new User();
-		List<User> users = userRepository.findAll();
-		for (User user : users) {
-			if (user.getCredentials().getUsername().equals(username)) {
-				incomingUser = user;
-			}
-		}
-		return userMapper.entityToDto(incomingUser);
-	}
+        User incomingUser = new User();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getCredentials().getUsername().equals(username)) {
+                incomingUser = user;
+            }
+        }
+        List<Tweet> allTweets = tweetRepository.findAll();
+        List<Tweet> tweetsToReturn = new ArrayList<Tweet>();
+        for (Tweet tweet : allTweets) {
+            if (tweet.getMentionedUsers().contains(incomingUser) && !tweet.isDeleted()) {
+                tweetsToReturn.add(tweet);
+            }
+        }
+        return tweetMapper.entitiesToDtos(tweetsToReturn);
+    }
 
-  @Override
-  public UserResponseDto createUser(UserRequestDto userRequestDto) {
-      User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
-      if (!validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername())) {
-          throw new NotAuthorizedException("Username not available.");
-      }
-      if (incomingUser.getCredentials().getUsername() == null || incomingUser.getCredentials().getPassword() == null
-              || incomingUser.getProfile().getEmail() == null) {
-          throw new BadRequestException("Must have Username, Password, and Email.");
-      }
-      if (incomingUser.isDeleted()) {
-          incomingUser.setDeleted(false);
-      }
-      return userMapper.entityToDto(userRepository.saveAndFlush(incomingUser));
-  }
+    @Override
+    public UserResponseDto getUserByName(String username) {
+        User incomingUser = new User();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getCredentials().getUsername().equals(username)) {
+                incomingUser = user;
+            }
+        }
+        return userMapper.entityToDto(incomingUser);
+    }
 
-  @Override
-  public List<UserResponseDto> getUserFollowing(String username) {
-      if (!validateService.doesUsernameExist(username)) {
-          throw new NotFoundException("User not found.");
-      }
-      List<User> allUsers = userRepository.findAll();
-      User incomingUser = new User();
-      for (User user : allUsers) {
-          if (user.getCredentials().getUsername().toLowerCase().equals(username.toLowerCase())) {
-              incomingUser = user;
-          }
-          if (incomingUser.isDeleted()) {
-              throw new NotAuthorizedException("Unable to get User. Deleted");
-          }
-      }
-      return userMapper.entitiesToDtos(incomingUser.getFollowing());
-  }
+    @Override
+    public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
+        if (!validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername())) {
+            throw new NotAuthorizedException("Username not available.");
+        }
+        if (incomingUser.getCredentials().getUsername() == null || incomingUser.getCredentials().getPassword() == null
+                || incomingUser.getProfile().getEmail() == null) {
+            throw new BadRequestException("Must have Username, Password, and Email.");
+        }
+        if (incomingUser.isDeleted()) {
+            incomingUser.setDeleted(false);
+        }
+        return userMapper.entityToDto(userRepository.saveAndFlush(incomingUser));
+    }
 
-  @Override
-  public List<UserResponseDto> getUserFollowers(String username) {
-      List<User> allUsers = userRepository.findAll();
-      User incomingUser = new User();
-      for (User user : allUsers) {
-          if (user.getCredentials().getUsername().toLowerCase().equals(username.toLowerCase())) {
-              incomingUser = user;
-          }
-          if (incomingUser.isDeleted()) {
-              throw new NotAuthorizedException("Unable to get User. Deleted");
-          }
-      }
-      return userMapper.entitiesToDtos(incomingUser.getFollowers());
-  }
+    @Override
+    public List<UserResponseDto> getUserFollowing(String username) {
+        if (!validateService.doesUsernameExist(username)) {
+            throw new NotFoundException("User not found.");
+        }
+        List<User> allUsers = userRepository.findAll();
+        User incomingUser = new User();
+        for (User user : allUsers) {
+            if (user.getCredentials().getUsername().toLowerCase().equals(username.toLowerCase())) {
+                incomingUser = user;
+            }
+            if (incomingUser.isDeleted()) {
+                throw new NotAuthorizedException("Unable to get User. Deleted");
+            }
+        }
+        return userMapper.entitiesToDtos(incomingUser.getFollowing());
+    }
 
-  @Override
-  public List<TweetResponseDto> getUserTweets(String username) {
-      List<Tweet> tweets = tweetService.getAllTweets();
-      List<Tweet> userTweets = new ArrayList<>();
-      for (Tweet tweet : tweets) {
-          if (tweet.getAuthor().getCredentials().getUsername().toLowerCase().equals(username.toLowerCase()) && !tweet.isDeleted())
-              userTweets.add(tweet);
-      }
-      return tweetMapper.entitiesToDtos(userTweets);
-  }
+    @Override
+    public List<UserResponseDto> getUserFollowers(String username) {
+        List<User> allUsers = userRepository.findAll();
+        User incomingUser = new User();
+        for (User user : allUsers) {
+            if (user.getCredentials().getUsername().toLowerCase().equals(username.toLowerCase())) {
+                incomingUser = user;
+            }
+            if (incomingUser.isDeleted()) {
+                throw new NotAuthorizedException("Unable to get User. Deleted");
+            }
+        }
+        return userMapper.entitiesToDtos(incomingUser.getFollowers());
+    }
+
+    @Override
+    public List<TweetResponseDto> getUserTweets(String username) {
+        List<Tweet> tweets = tweetService.getAllTweets();
+        List<Tweet> userTweets = new ArrayList<>();
+        for (Tweet tweet : tweets) {
+            if (tweet.getAuthor().getCredentials().getUsername().toLowerCase().equals(username.toLowerCase()) && !tweet.isDeleted())
+                userTweets.add(tweet);
+        }
+        return tweetMapper.entitiesToDtos(userTweets);
+    }
+
+    @Override
+    public List<User> updateUsers(List<User> users) {
+        return userRepository.saveAllAndFlush(users);
+    }
 }

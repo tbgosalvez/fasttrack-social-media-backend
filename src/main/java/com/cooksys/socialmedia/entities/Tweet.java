@@ -1,22 +1,14 @@
 package com.cooksys.socialmedia.entities;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
-import org.springframework.data.annotation.CreatedDate;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -66,5 +58,5 @@ public class Tweet {
 			joinColumns = @JoinColumn(name = "tweet_id"),
 			inverseJoinColumns = @JoinColumn(name = "user_id")
 	)
-	private List<User> mentionedByUsers = new ArrayList<>();
+	private List<User> mentionedUsers = new ArrayList<>();
 }
