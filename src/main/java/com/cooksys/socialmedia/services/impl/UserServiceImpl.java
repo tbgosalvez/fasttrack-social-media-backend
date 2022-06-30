@@ -226,4 +226,17 @@ public class UserServiceImpl implements UserService {
                 .sorted(Comparator.comparing(Tweet::getPosted));
         return tweetMapper.entitiesToDtos(userFeed);
 	    }
+
+    @Override
+    public UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException {
+        User deletedUser = getUserByCredentials(credentialsDto);
+
+        if(deletedUser.isDeleted())
+            throw new NotFoundException("User has already been deleted.");
+        
+        deletedUser.setDeleted(true);
+        userRepository.saveAndFlush(deletedUser);
+
+        return userMapper.entityToDto(deletedUser);
+    }
 }

@@ -38,4 +38,5 @@ public interface UserService {
 
 	String setUnfollow(String username, CredentialsDto unfollowUser);
 
+  UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
 }

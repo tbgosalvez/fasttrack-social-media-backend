@@ -1,5 +1,7 @@
 package com.cooksys.socialmedia.controllers;
 
+import java.util.List;
+
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
@@ -7,9 +9,8 @@ import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,6 +55,7 @@ public class UserController {
 	public List<TweetResponseDto> getUserTweets(@PathVariable String username) {
 		return tweetService.getUserTweets(username);
 	}
+
 	
   @GetMapping("/@{username}/feed")
 	public List<TweetResponseDto> getUserFeed(@PathVariable String username) {
@@ -70,5 +72,11 @@ public class UserController {
 	public String setUnfollow(@PathVariable String username, @RequestBody CredentialsDto unfollowUser) {
 		userService.validateCredentials(unfollowUser);
 		return userService.setUnfollow(username, unfollowUser);
+
+	@DeleteMapping("/@{username}")
+	@ResponseStatus(HttpStatus.OK)
+	public UserResponseDto deleteUser(@PathVariable String username, @RequestBody CredentialsDto credentialsDto) {
+		userService.validateCredentials(credentialsDto);
+		return userService.deleteUser(username, credentialsDto);
 	}
 }
