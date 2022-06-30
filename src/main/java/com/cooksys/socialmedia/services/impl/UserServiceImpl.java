@@ -1,5 +1,10 @@
 package com.cooksys.socialmedia.services.impl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.CredentialsDto;
@@ -16,15 +21,10 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
-import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import com.cooksys.socialmedia.services.ValidateService;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -154,4 +154,25 @@ public class UserServiceImpl implements UserService {
     public List<User> updateUsers(List<User> users) {
         return userRepository.saveAllAndFlush(users);
     }
+
+
+	@Override
+	public List<TweetResponseDto> getUserFeed(String username) {
+        User incomingUser = new User();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if (user.getCredentials().getUsername().equals(username)) {
+                incomingUser = user;
+            }
+        }
+        List<Tweet> userFeed = incomingUser.getTweets();
+        List<User> following = incomingUser.getFollowing();
+        for (User user : following) {
+            userFeed.addAll(user.getTweets());
+        }
+        userFeed.stream()
+                .filter(tweet -> !tweet.isDeleted())
+                .sorted(Comparator.comparing(Tweet::getPosted));
+        return tweetMapper.entitiesToDtos(userFeed);
+	}
 }
