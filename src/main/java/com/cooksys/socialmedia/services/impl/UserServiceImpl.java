@@ -1,5 +1,10 @@
 package com.cooksys.socialmedia.services.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.CredentialsDto;
@@ -16,15 +21,10 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
-import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import com.cooksys.socialmedia.services.ValidateService;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -154,4 +154,39 @@ public class UserServiceImpl implements UserService {
     public List<User> updateUsers(List<User> users) {
         return userRepository.saveAllAndFlush(users);
     }
+
+
+	@Override
+	public String setFollowing(String username, CredentialsDto followingUser) {
+        List<User> allUsers = userRepository.findAll();
+        User incomingUser = new User();
+        for (User user : allUsers) {
+            if (user.getCredentials().getUsername().toLowerCase().equals(username.toLowerCase())) {
+                incomingUser = user;
+            }
+        }
+        User follower = new User();
+        for (User user : allUsers) {
+            if (user.getCredentials().getUsername().toLowerCase().equals(followingUser.getUsername().toLowerCase())) {
+                follower = user;
+            }
+        }
+        List<User> followers = incomingUser.getFollowers();
+        List<User> following = follower.getFollowing();
+        if(!validateService.doesUsernameExist(username)) {
+        	throw new NotFoundException("wut?");
+        }
+        if(incomingUser.isDeleted()) {
+        	throw new NotFoundException(incomingUser.getCredentials().getUsername() + " is deleted");
+        }
+        for(User user : followers) {
+        	if (follower.getCredentials().getUsername().equals(user.getCredentials().getUsername())) {
+        		throw new BadRequestException("Already following");
+        	}
+        }
+        followers.add(follower);
+        following.add(incomingUser);
+        userRepository.saveAllAndFlush(Arrays.asList(incomingUser, follower));
+		return follower.getCredentials().getUsername() + " is now following " + incomingUser.getCredentials().getUsername();
+	}
 }
