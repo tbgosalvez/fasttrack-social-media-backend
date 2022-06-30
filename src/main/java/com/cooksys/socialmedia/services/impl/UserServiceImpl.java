@@ -1,7 +1,6 @@
 package com.cooksys.socialmedia.services.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -66,8 +65,7 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return tweetMapper.entitiesToDtos(tweetsToReturn);
-    }
-
+    }	
 	@Override
 	public UserResponseDto getUserByName(String username) {
 		User incomingUser = new User();
