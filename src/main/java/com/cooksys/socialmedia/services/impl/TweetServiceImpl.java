@@ -1,9 +1,5 @@
 package com.cooksys.socialmedia.services.impl;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.CredentialsDto;
@@ -16,8 +12,11 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.TweetService;
-
 import lombok.RequiredArgsConstructor;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +45,7 @@ public class TweetServiceImpl implements TweetService {
 	}
 
 	@Override
-	public List<TweetResponseDto> getAllTweets() {
+	public List<TweetResponseDto> getAllTweetResponseDtos() {
 		List<Tweet> activeTweets =
 				tweetRepository.findAll()
 						.stream()
@@ -55,6 +54,11 @@ public class TweetServiceImpl implements TweetService {
 						.toList();
 
 		return tweetMapper.entitiesToDtos(activeTweets);
+	}
+
+	@Override
+	public List<Tweet> getAllTweets() {
+		return tweetRepository.findAll();
 	}
 
 	@Override
