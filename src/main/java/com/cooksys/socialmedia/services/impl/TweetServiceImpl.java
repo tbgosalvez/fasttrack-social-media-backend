@@ -108,7 +108,9 @@ public class TweetServiceImpl implements TweetService {
 		Tweet incomingTweet = getTweetById(id);
 		return userMapper.entitiesToDtos(incomingTweet.getMentionedUsers());
 	}
-
+	
+	/////////// endpoint to merge /////////////
+	
 	@Override
 	public List<UserResponseDto> getLikedByUsers(Long id) {
 		Tweet incomingTweet = getTweetById(id);
