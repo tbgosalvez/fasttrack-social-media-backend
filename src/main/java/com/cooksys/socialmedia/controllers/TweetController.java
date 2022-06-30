@@ -30,7 +30,7 @@ public class TweetController {
 	
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets(){
-		return tweetService.getAllTweets();
+		return tweetService.getAllTweetResponseDtos();
 	}
 	
 	@GetMapping("/{id}")

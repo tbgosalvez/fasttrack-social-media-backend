@@ -53,7 +53,7 @@ public class User {
 	)
 	private List<Tweet> likedTweets;
 
-	@ManyToMany(mappedBy = "mentionedUsers")
+	@ManyToMany(mappedBy = "mentionedByUsers")
 	private List<Tweet> mentionedTweets;
 	
 	@ManyToMany
