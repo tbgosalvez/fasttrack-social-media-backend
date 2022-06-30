@@ -54,12 +54,7 @@ public class User {
 	)
 	private List<Tweet> likedTweets;
 
-	@ManyToMany
-	@JoinTable(
-			name = "user_mentions",
-			joinColumns = @JoinColumn(name = "user_id"),
-			inverseJoinColumns = @JoinColumn(name = "tweet_id")
-	)
+	@ManyToMany(mappedBy = "mentionedByUsers")
 	private List<Tweet> mentionedByTweets = new ArrayList<>();
 	
 	@ManyToMany

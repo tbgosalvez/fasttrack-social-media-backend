@@ -6,7 +6,6 @@ import com.cooksys.socialmedia.dtos.CredentialsDto;
 
 import com.cooksys.socialmedia.dtos.TweetRequestDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
-import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 
 public interface TweetService {
@@ -27,5 +26,5 @@ public interface TweetService {
 
 	void parseForUserMentions(Tweet tweet);
 
-	List<Hashtag> parseForHashtags(String content);
+	void parseForHashtags(Tweet tweet);
 }

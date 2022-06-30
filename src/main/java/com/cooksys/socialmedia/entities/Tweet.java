@@ -6,12 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import org.springframework.data.annotation.CreatedDate;
 
@@ -49,13 +44,23 @@ public class Tweet {
 	@ManyToOne
 	private Tweet repostOf;
 
-	@ManyToMany(mappedBy = "tweetsInHashtag")
+	@ManyToMany
+	@JoinTable(
+			name="tweet_hashtags",
+			joinColumns = @JoinColumn(name = "tweet_id"),
+			inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+	)
 	private List<Hashtag> hashtags;
 
 	@ManyToMany(mappedBy = "likedTweets")
 	private List<User> likedByUsers;
 
-	@ManyToMany(mappedBy = "mentionedByTweets")
-	private List<User> mentionedUsers = new ArrayList<>();
+	@ManyToMany
+	@JoinTable(
+			name = "user_mentions",
+			joinColumns = @JoinColumn(name = "tweet_id"),
+			inverseJoinColumns = @JoinColumn(name = "user_id")
+	)
+	private List<User> mentionedByUsers = new ArrayList<>();
 
 }

@@ -38,11 +38,6 @@ public class Hashtag {
 	@Column(nullable = false)
 	private Timestamp lastUsed = Timestamp.valueOf(LocalDateTime.now());
 
-	@ManyToMany
-	@JoinTable(
-			name="tweet_hashtags",
-			joinColumns = @JoinColumn(name = "hashtag_id"),
-			inverseJoinColumns = @JoinColumn(name = "tweet_id")
-	)
-	private List<Tweet> tweetsInHashtag;
+	@ManyToMany(mappedBy = "hashtags")
+	private List<Tweet> tweets;
 }

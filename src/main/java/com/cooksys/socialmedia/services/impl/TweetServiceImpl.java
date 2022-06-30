@@ -10,6 +10,7 @@ import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
+import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import com.cooksys.socialmedia.services.ValidateService;
@@ -28,7 +29,7 @@ public class TweetServiceImpl implements TweetService {
 
 	private final TweetRepository tweetRepository;
 	private final UserService userService;
-	private final ValidateService validateService;
+	private final HashtagService hashtagService;
 	private final TweetMapper tweetMapper;
 
 	@Override
@@ -132,7 +133,7 @@ public class TweetServiceImpl implements TweetService {
 							.filter(user -> user.getCredentials().getUsername().equals(username))
 							.toList();
 
-					tweet.getMentionedUsers().addAll(results);
+					tweet.getMentionedByUsers().addAll(results);
 					results.forEach(user -> user.getMentionedByTweets().add(tweet));
 					tweetRepository.saveAndFlush(tweet);
 					userService.updateUsers(results); // .saveAllAndFlush() to reduce database calls
@@ -140,7 +141,23 @@ public class TweetServiceImpl implements TweetService {
 	}
 
 	@Override
-	public List<Hashtag> parseForHashtags(String content) {
-		return null;
+	public void parseForHashtags(Tweet tweet) {
+//		Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
+//		Matcher matcher = pattern.matcher(tweet.getContent());
+//
+//		matcher.results()
+//				.forEach(matchResult -> {
+//					String hashtag = matchResult.group().substring(1);
+//					List<Hashtag> results = hashtagService.getAllHashtags()
+//							.stream()
+//							.filter(user -> user.getCredentials().getUsername().equals(username))
+//							.toList();
+//
+//					tweet.getMentionedByUsers().addAll(results);
+//					results.forEach(user -> user.getMentionedByTweets().add(tweet));
+//					tweetRepository.saveAndFlush(tweet);
+//					userService.updateUsers(results); // .saveAllAndFlush() to reduce database calls
+//				});
+//
 	}
 }
