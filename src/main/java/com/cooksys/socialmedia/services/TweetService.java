@@ -23,4 +23,6 @@ public interface TweetService {
     TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto);
 
 	List<UserResponseDto> getMentionedUsers(Long id);
+
+	List<UserResponseDto> getLikedByUsers(Long id);
 }
