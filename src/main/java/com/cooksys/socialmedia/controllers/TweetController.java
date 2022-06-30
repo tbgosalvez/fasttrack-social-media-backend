@@ -67,4 +67,9 @@ public class TweetController {
 		userService.validateCredentials(creds);
 		return tweetService.deleteTweet(id, creds);
 	}
+	
+	@GetMapping("/{id}/context")
+	public ContextDto getContext(@PathVariable Long id) {
+		return tweetService.getContext(id);
+	}
 }

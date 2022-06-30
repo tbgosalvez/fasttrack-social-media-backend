@@ -1,6 +1,20 @@
 package com.cooksys.socialmedia.services.impl;
 
-import com.cooksys.socialmedia.dtos.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Service;
+
+import com.cooksys.socialmedia.dtos.ContextDto;
+import com.cooksys.socialmedia.dtos.CredentialsDto;
+import com.cooksys.socialmedia.dtos.HashtagDto;
+import com.cooksys.socialmedia.dtos.TweetRequestDto;
+import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
@@ -13,15 +27,8 @@ import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -162,9 +169,7 @@ public class TweetServiceImpl implements TweetService {
     public void parseForUserMentions(Tweet tweet) {
         Pattern pattern = Pattern.compile("@\\w+", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(tweet.getContent());
-
         List<User> usersMentioned = new ArrayList<>();
-
         matcher.results()
                 .forEach(matchResult -> {
                     String username = matchResult.group().substring(1);
@@ -186,9 +191,7 @@ public class TweetServiceImpl implements TweetService {
     public void parseForHashtags(Tweet tweet) {
         Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(tweet.getContent());
-
         List<Hashtag> newHashtagsToAdd = new ArrayList<>();
-
         matcher.results()
                 .forEach(matchResult -> {
                     String hashtagUsed = matchResult.group();
@@ -202,4 +205,41 @@ public class TweetServiceImpl implements TweetService {
 
         tweetRepository.saveAndFlush(tweet);
     }
+
+	@Override
+	public ContextDto getContext(Long id) {
+		ContextDto contextDto = new ContextDto();
+		Tweet contextTweet = getTweetById(id);
+		if(contextTweet.isDeleted() || contextTweet.equals(null)) {
+			throw new NotFoundException("Not Found");
+		}
+		Tweet beforeTweet = contextTweet.getInReplyTo();
+		List<Tweet> before = new ArrayList<Tweet>();
+		List<Tweet> after = contextTweet.getReplies();
+		List<Tweet> afterTweets = new ArrayList<Tweet>();
+		afterTweets.addAll(after);
+		while (beforeTweet != null) {
+			before.add(beforeTweet);
+			beforeTweet = beforeTweet.getInReplyTo();
+		}
+		for(Tweet tweet : after) {
+			if(tweet.getReplies() != null) {
+				afterTweets.addAll(tweet.getReplies());
+			}
+		}
+		for (Tweet tweet : before) {
+			if (tweet.isDeleted()) {
+				before.remove(tweet);
+			}
+		}
+		for (Tweet tweet : after) {
+			if (tweet.isDeleted()) {
+				after.remove(tweet);
+			}
+		}
+		contextDto.setBefore(tweetMapper.entitiesToDtos(before));
+		contextDto.setTarget(tweetMapper.entityToDto(contextTweet));
+		contextDto.setAfter(tweetMapper.entitiesToDtos(afterTweets));
+		return contextDto;
+	}
 }
