@@ -49,19 +49,22 @@ public class Tweet {
 	@ManyToOne
 	private Tweet repostOf;
 
-	@ManyToMany
-	@JoinTable(name = "tweet_hashtags", 
-	joinColumns = @JoinColumn(name = "tweet_id"), 
-	inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
-	private List<Hashtag> hashtags;
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(
+			name="tweet_hashtags",
+			joinColumns = @JoinColumn(name = "tweet_id"),
+			inverseJoinColumns = @JoinColumn(name = "hashtag_id")
+	)
+	private List<Hashtag> hashtags = new ArrayList<>();
 
 	@ManyToMany(mappedBy = "likedTweets")
-	private List<User> likedByUsers;
+	private List<User> likedByUsers = new ArrayList<>();
 
 	@ManyToMany
-	@JoinTable(name = "user_mentions", 
-	joinColumns = @JoinColumn(name = "tweet_id"), 
-	inverseJoinColumns = @JoinColumn(name = "user_id"))
-
-  private List<User> mentionedByUsers;
+	@JoinTable(
+			name = "user_mentions",
+			joinColumns = @JoinColumn(name = "tweet_id"),
+			inverseJoinColumns = @JoinColumn(name = "user_id")
+	)
+	private List<User> mentionedByUsers = new ArrayList<>();
 }

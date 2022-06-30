@@ -13,9 +13,12 @@ import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
+import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
+import com.cooksys.socialmedia.services.UserService;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,8 @@ import java.util.Optional;
 public class TweetServiceImpl implements TweetService {
 
 	private final TweetRepository tweetRepository;
+	private final UserService userService;
+	private final HashtagService hashtagService;
 	private final TweetMapper tweetMapper;
 	private final UserMapper userMapper;
 	private final HashtagMapper hashtagMapper;
@@ -89,7 +94,18 @@ public class TweetServiceImpl implements TweetService {
 
 		return tweetMapper.entitiesToDtos(repostedTweets);
 	}
+    
+  public List<UserResponseDto> getLikedByUsers(Long id) {
+		Tweet incomingTweet = getTweetById(id);
+		return userMapper.entitiesToDtos(incomingTweet.getLikedByUsers());
+	}
 
+	@Override
+	public List<HashtagDto> getTags(Long id) {
+		Tweet incomingTweet = getTweetById(id);
+		return hashtagMapper.entitiesToDtos(incomingTweet.getHashtags());
+	}
+  
 	@Override
 	public TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto) {
 		Optional<Tweet> tweetToDelete = tweetRepository.findById(id);
@@ -111,22 +127,65 @@ public class TweetServiceImpl implements TweetService {
 	}
 
 	@Override
-	public List<UserResponseDto> getMentionedUsers(Long id) {
+	public TweetResponseDto createTweet(TweetRequestDto tweetReqDto) {
+		Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
+
+		postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
+
+		Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
+		parseForUserMentions(insertedTweet);
+		parseForHashtags(insertedTweet);
+
+		return tweetMapper.entityToDto(insertedTweet);
+  }
+
+  @Override
+  public List<UserResponseDto> getMentionedUsers(Long id) {
 		Tweet incomingTweet = getTweetById(id);
-		return userMapper.entitiesToDtos(incomingTweet.getMentionedUsers());
+		return userMapper.entitiesToDtos(incomingTweet.getMentionedByUsers());
 	}
 	
-	/////////// endpoint to merge /////////////
 	
 	@Override
-	public List<UserResponseDto> getLikedByUsers(Long id) {
-		Tweet incomingTweet = getTweetById(id);
-		return userMapper.entitiesToDtos(incomingTweet.getLikedByUsers());
+	public void parseForUserMentions(Tweet tweet) {
+		Pattern pattern = Pattern.compile("@\\w+", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(tweet.getContent());
+
+		List<User> usersMentioned = new ArrayList<>();
+
+		matcher.results()
+				.forEach(matchResult -> {
+					String username = matchResult.group().substring(1);
+					userService.getAllActiveUsers()
+							.stream()
+							.filter(user -> user.getCredentials().getUsername().equals(username))
+							.forEach(user -> {
+								usersMentioned.add(user);
+								user.getMentionedByTweets().add(tweet);
+							});
+				});
+
+		tweet.getMentionedByUsers().addAll(usersMentioned);
+		tweetRepository.saveAndFlush(tweet);
+		userService.updateUsers(usersMentioned); // .saveAllAndFlush() to reduce database calls
 	}
 
 	@Override
-	public List<HashtagDto> getTags(Long id) {
-		Tweet incomingTweet = getTweetById(id);
-		return hashtagMapper.entitiesToDtos(incomingTweet.getHashtags());
-	}
+	public void parseForHashtags(Tweet tweet) {
+		Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(tweet.getContent());
+
+		List<Hashtag> newHashtagsToAdd = new ArrayList<>();
+
+		matcher.results()
+				.forEach(matchResult -> {
+					String hashtagUsed = matchResult.group().substring(1);
+					Hashtag insertedHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
+					newHashtagsToAdd.add(insertedHashtag);
+				});
+
+		tweet.getHashtags().addAll(newHashtagsToAdd);
+		newHashtagsToAdd.forEach(hashtag -> hashtag.getTweets().add(tweet));
+		tweetRepository.saveAndFlush(tweet);
+  }
 }

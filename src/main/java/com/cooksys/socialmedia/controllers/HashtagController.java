@@ -21,6 +21,6 @@ public class HashtagController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<HashtagDto> getAllTags() {
-        return hashtagService.getAllTags();
+        return hashtagService.getAllTagDtos();
     }
 }

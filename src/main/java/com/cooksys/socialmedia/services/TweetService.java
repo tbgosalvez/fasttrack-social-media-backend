@@ -28,5 +28,7 @@ public interface TweetService {
 
 	List<UserResponseDto> getLikedByUsers(Long id);
 
-	List<HashtagDto> getTags(Long id);
+	void parseForHashtags(Tweet tweet);
+
+  List<HashtagDto> getTags(Long id);
 }
