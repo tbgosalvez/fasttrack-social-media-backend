@@ -1,5 +1,13 @@
 package com.cooksys.socialmedia.services.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Comparator;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
@@ -19,10 +27,6 @@ import com.cooksys.socialmedia.services.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -209,4 +213,17 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAllAndFlush(Arrays.asList(incomingUser, unfollow));
         return null;
     }
+
+      @Override
+      public List<TweetResponseDto> getUserFeed(String username) {
+        List<Tweet> userFeed = incomingUser.getTweets();
+        List<User> following = incomingUser.getFollowing();
+        for (User user : following) {
+            userFeed.addAll(user.getTweets());
+        }
+        userFeed.stream()
+                .filter(tweet -> !tweet.isDeleted())
+                .sorted(Comparator.comparing(Tweet::getPosted));
+        return tweetMapper.entitiesToDtos(userFeed);
+	    }
 }

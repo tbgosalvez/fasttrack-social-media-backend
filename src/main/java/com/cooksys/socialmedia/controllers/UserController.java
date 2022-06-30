@@ -55,6 +55,11 @@ public class UserController {
 		return tweetService.getUserTweets(username);
 	}
 	
+  @GetMapping("/@{username}/feed")
+	public List<TweetResponseDto> getUserFeed(@PathVariable String username) {
+		return userService.getUserFeed(username);
+	}
+
 	@PostMapping("/@{username}/follow")
 	public String setFollowing(@PathVariable String username, @RequestBody CredentialsDto followingUser) {
 		userService.validateCredentials(followingUser);
@@ -66,5 +71,4 @@ public class UserController {
 		userService.validateCredentials(unfollowUser);
 		return userService.setUnfollow(username, unfollowUser);
 	}
-	
 }
