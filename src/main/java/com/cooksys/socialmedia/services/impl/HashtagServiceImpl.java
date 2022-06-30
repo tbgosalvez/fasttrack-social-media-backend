@@ -38,3 +38,4 @@ public class HashtagServiceImpl implements HashtagService {
         return hashtagRepository.saveAndFlush(newTag);
     }
 }
+

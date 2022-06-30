@@ -2,14 +2,21 @@ package com.cooksys.socialmedia.controllers;
 
 import java.util.List;
 
-import com.cooksys.socialmedia.dtos.CredentialsDto;
-import com.cooksys.socialmedia.dtos.TweetRequestDto;
-import com.cooksys.socialmedia.services.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.cooksys.socialmedia.dtos.CredentialsDto;
+import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.services.TweetService;
+import com.cooksys.socialmedia.services.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +30,7 @@ public class TweetController {
 	
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets(){
-		return tweetService.getAllTweets();
+		return tweetService.getAllTweetResponseDtos();
 	}
 	
 	@GetMapping("/{id}")
@@ -40,12 +47,20 @@ public class TweetController {
 	public List<TweetResponseDto> getReposts(@PathVariable Long id) {
 		return tweetService.getReposts(id);
 	}
-
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public TweetResponseDto createTweet(@RequestBody TweetRequestDto tweetReqDto) {
-		userService.validateCredentials(tweetReqDto.getCredentials());
-		return tweetService.createTweet(tweetReqDto);
+	
+	@GetMapping("/{id}/mentions")
+	public List<UserResponseDto> getMentionedUsers(@PathVariable Long id) {
+		return tweetService.getMentionedUsers(id);
+	}
+	
+	@GetMapping("/{id}/likes")
+	public List<UserResponseDto> getLikedByUsers(@PathVariable Long id) {
+		return tweetService.getLikedByUsers(id);
+	}
+	
+	@GetMapping("/{id}/tags")
+	public List<HashtagDto> getTags(@PathVariable Long id) {
+		return tweetService.getTags(id);
 	}
 
 	@DeleteMapping("/{id}")
