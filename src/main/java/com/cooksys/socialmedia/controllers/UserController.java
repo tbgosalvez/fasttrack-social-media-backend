@@ -1,22 +1,13 @@
 package com.cooksys.socialmedia.controllers;
 
-import java.util.List;
-
-import com.cooksys.socialmedia.services.TweetService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
 import com.cooksys.socialmedia.dtos.UserResponseDto;
+import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -68,6 +59,12 @@ public class UserController {
 	public String setFollowing(@PathVariable String username, @RequestBody CredentialsDto followingUser) {
 		userService.validateCredentials(followingUser);
 		return userService.setFollowing(username, followingUser);
+	}
+
+	@PostMapping("/@{username}/unfollow")
+	public String setUnfollow(@PathVariable String username, @RequestBody CredentialsDto unfollowUser) {
+		userService.validateCredentials(unfollowUser);
+		return userService.setUnfollow(username, unfollowUser);
 	}
 	
 }

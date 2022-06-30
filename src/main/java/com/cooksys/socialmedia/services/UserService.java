@@ -33,4 +33,6 @@ public interface UserService {
 	List<User> updateUsers(List<User> users);
 
 	String setFollowing(String username, CredentialsDto followingUser);
+
+	String setUnfollow(String username, CredentialsDto unfollowUser);
 }
