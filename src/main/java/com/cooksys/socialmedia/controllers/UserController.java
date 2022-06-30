@@ -72,6 +72,7 @@ public class UserController {
 	public String setUnfollow(@PathVariable String username, @RequestBody CredentialsDto unfollowUser) {
 		userService.validateCredentials(unfollowUser);
 		return userService.setUnfollow(username, unfollowUser);
+	}
 
 	@DeleteMapping("/@{username}")
 	@ResponseStatus(HttpStatus.OK)

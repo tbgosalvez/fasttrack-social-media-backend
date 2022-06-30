@@ -216,6 +216,7 @@ public class UserServiceImpl implements UserService {
 
       @Override
       public List<TweetResponseDto> getUserFeed(String username) {
+        User incomingUser = getUserEntityByName(username);
         List<Tweet> userFeed = incomingUser.getTweets();
         List<User> following = incomingUser.getFollowing();
         for (User user : following) {
