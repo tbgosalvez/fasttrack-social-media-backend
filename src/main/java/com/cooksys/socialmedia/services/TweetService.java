@@ -21,7 +21,7 @@ public interface TweetService {
 
 	List<TweetResponseDto> getReposts(Long id);
 
-  TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto);
+	TweetResponseDto deleteTweet(Long id, CredentialsDto credentialsDto);
 
 	List<UserResponseDto> getMentionedUsers(Long id);
 
@@ -31,8 +31,9 @@ public interface TweetService {
 
 	void parseForHashtags(Tweet tweet);
 
-  List<HashtagDto> getTags(Long id);
+	List<HashtagDto> getTags(Long id);
 
-  TweetResponseDto createTweet(TweetRequestDto newTweet);
+	TweetResponseDto createTweet(TweetRequestDto newTweet);
 
+	ContextDto getContext(Long id);
 }
