@@ -52,7 +52,7 @@ public class User {
 			joinColumns = @JoinColumn(name = "user_id"),
 			inverseJoinColumns = @JoinColumn(name="tweet_id")
 	)
-	private List<Tweet> likedTweets;
+	private List<Tweet> likedTweets = new ArrayList<>();
 
 	@ManyToMany(mappedBy = "mentionedByUsers")
 	private List<Tweet> mentionedByTweets = new ArrayList<>();

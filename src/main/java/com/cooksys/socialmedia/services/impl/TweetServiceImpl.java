@@ -13,10 +13,10 @@ import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
-import com.cooksys.socialmedia.services.ValidateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -116,6 +116,7 @@ public class TweetServiceImpl implements TweetService {
 
 		Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
 		parseForUserMentions(insertedTweet);
+		parseForHashtags(insertedTweet);
 
 		return tweetMapper.entityToDto(insertedTweet);
 	}
@@ -125,39 +126,41 @@ public class TweetServiceImpl implements TweetService {
 		Pattern pattern = Pattern.compile("@\\w+", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = pattern.matcher(tweet.getContent());
 
+		List<User> usersMentioned = new ArrayList<>();
+
 		matcher.results()
 				.forEach(matchResult -> {
 					String username = matchResult.group().substring(1);
-					List<User> results = userService.getAllActiveUsers()
+					userService.getAllActiveUsers()
 							.stream()
 							.filter(user -> user.getCredentials().getUsername().equals(username))
-							.toList();
-
-					tweet.getMentionedByUsers().addAll(results);
-					results.forEach(user -> user.getMentionedByTweets().add(tweet));
-					tweetRepository.saveAndFlush(tweet);
-					userService.updateUsers(results); // .saveAllAndFlush() to reduce database calls
+							.forEach(user -> {
+								usersMentioned.add(user);
+								user.getMentionedByTweets().add(tweet);
+							});
 				});
+
+		tweet.getMentionedByUsers().addAll(usersMentioned);
+		tweetRepository.saveAndFlush(tweet);
+		userService.updateUsers(usersMentioned); // .saveAllAndFlush() to reduce database calls
 	}
 
 	@Override
 	public void parseForHashtags(Tweet tweet) {
-//		Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
-//		Matcher matcher = pattern.matcher(tweet.getContent());
-//
-//		matcher.results()
-//				.forEach(matchResult -> {
-//					String hashtag = matchResult.group().substring(1);
-//					List<Hashtag> results = hashtagService.getAllHashtags()
-//							.stream()
-//							.filter(user -> user.getCredentials().getUsername().equals(username))
-//							.toList();
-//
-//					tweet.getMentionedByUsers().addAll(results);
-//					results.forEach(user -> user.getMentionedByTweets().add(tweet));
-//					tweetRepository.saveAndFlush(tweet);
-//					userService.updateUsers(results); // .saveAllAndFlush() to reduce database calls
-//				});
-//
+		Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(tweet.getContent());
+
+		List<Hashtag> newHashtagsToAdd = new ArrayList<>();
+
+		matcher.results()
+				.forEach(matchResult -> {
+					String hashtagUsed = matchResult.group().substring(1);
+					Hashtag insertedHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
+					newHashtagsToAdd.add(insertedHashtag);
+				});
+
+		tweet.getHashtags().addAll(newHashtagsToAdd);
+		newHashtagsToAdd.forEach(hashtag -> hashtag.getTweets().add(tweet));
+		tweetRepository.saveAndFlush(tweet);
 	}
 }
