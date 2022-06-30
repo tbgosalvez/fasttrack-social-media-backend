@@ -1,15 +1,18 @@
 package com.cooksys.socialmedia.services.impl;
 
+import org.springframework.stereotype.Service;
+
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.TweetMapper;
+import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.TweetService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +24,7 @@ public class TweetServiceImpl implements TweetService {
 
 	private final TweetRepository tweetRepository;
 	private final TweetMapper tweetMapper;
+	private final UserMapper userMapper;
 
 	@Override
 	public Tweet getTweetById(Long id) {
@@ -101,5 +105,12 @@ public class TweetServiceImpl implements TweetService {
 		tweetRepository.saveAndFlush(tweetToDelete.get());
 
 		return tweetMapper.entityToDto(tweetToDelete.get());
+	}
+
+	@Override
+	public List<UserResponseDto> getMentionedUsers(Long id) {
+		Tweet incomingTweet = getTweetById(id);
+		return userMapper.entitiesToDtos(incomingTweet.getMentionedUsers());
+		
 	}
 }

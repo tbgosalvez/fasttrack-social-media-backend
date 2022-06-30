@@ -62,6 +62,6 @@ public class Tweet {
 	@JoinTable(name = "user_mentions", 
 	joinColumns = @JoinColumn(name = "tweet_id"), 
 	inverseJoinColumns = @JoinColumn(name = "user_id"))
-	private List<User> mentionedByUsers;
 
+  private List<User> mentionedByUsers;
 }
