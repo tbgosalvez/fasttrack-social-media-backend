@@ -72,8 +72,7 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 		return tweetMapper.entitiesToDtos(tweetsToReturn);
-    }
-
+    }	
 	@Override
 	public UserResponseDto getUserByName(String username) {
 		User incomingUser = new User();

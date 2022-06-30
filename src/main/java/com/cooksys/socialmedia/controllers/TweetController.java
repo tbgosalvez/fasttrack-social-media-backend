@@ -51,6 +51,11 @@ public class TweetController {
 	public List<UserResponseDto> getMentionedUsers(@PathVariable Long id) {
 		return tweetService.getMentionedUsers(id);
 	}
+	
+	@GetMapping("/{id}/likes")
+	public List<UserResponseDto> getLikedByUsers(@PathVariable Long id) {
+		return tweetService.getLikedByUsers(id);
+	}
 
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.OK)
