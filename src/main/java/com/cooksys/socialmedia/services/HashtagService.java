@@ -11,6 +11,8 @@ public interface HashtagService {
     List<Hashtag> getAllTags();
     List<HashtagDto> getAllTagDtos();
 
+    Hashtag getByLabel(String label);
+
     List<Hashtag> addNewTags(List<Hashtag> newTags);
     Hashtag addNewTag(Hashtag newTag);
 }

@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,6 @@ public class UserServiceImpl implements UserService {
     private final CredentialsMapper credentialsMapper;
     private final TweetMapper tweetMapper;
     private final TweetRepository tweetRepository;
-    private final TweetService tweetService;
     private final ValidateService validateService;
 
 
@@ -91,6 +91,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByCredentials(CredentialsDto creds) throws NotFoundException {
+        Optional<User> user = userRepository.findByCredentials(credentialsMapper.dtoToEntity(creds));
+        if(user.isEmpty())
+            throw new NotFoundException("User not found with that username/password.");
+
+        return user.get();
+    }
+
+
+    @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
         User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
         if (!validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername())) {
@@ -139,16 +149,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.entitiesToDtos(incomingUser.getFollowers());
     }
 
-    @Override
-    public List<TweetResponseDto> getUserTweets(String username) {
-        List<Tweet> tweets = tweetService.getAllTweets();
-        List<Tweet> userTweets = new ArrayList<>();
-        for (Tweet tweet : tweets) {
-            if (tweet.getAuthor().getCredentials().getUsername().toLowerCase().equals(username.toLowerCase()) && !tweet.isDeleted())
-                userTweets.add(tweet);
-        }
-        return tweetMapper.entitiesToDtos(userTweets);
-    }
 
     @Override
     public List<User> updateUsers(List<User> users) {

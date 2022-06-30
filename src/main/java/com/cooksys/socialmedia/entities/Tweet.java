@@ -41,7 +41,7 @@ public class Tweet {
 	@ManyToOne
 	private Tweet repostOf;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.MERGE)
 	@JoinTable(
 			name="tweet_hashtags",
 			joinColumns = @JoinColumn(name = "tweet_id"),

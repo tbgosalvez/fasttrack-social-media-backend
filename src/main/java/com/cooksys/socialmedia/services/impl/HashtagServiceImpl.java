@@ -11,6 +11,7 @@ import com.cooksys.socialmedia.services.HashtagService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,13 +30,25 @@ public class HashtagServiceImpl implements HashtagService {
     }
 
     @Override
+    public Hashtag getByLabel(String label) {
+        Optional<Hashtag> hashtag = hashtagRepository.findByLabel(label);
+        if(hashtag.isEmpty())
+            return null;
+        return hashtag.get();
+    }
+
+    @Override
     public List<Hashtag> addNewTags(List<Hashtag> newTags) {
         return hashtagRepository.saveAllAndFlush(newTags);
     }
 
     @Override
     public Hashtag addNewTag(Hashtag newTag) {
-        return hashtagRepository.saveAndFlush(newTag);
+        List<Hashtag> currentTags = getAllTags();
+        if(!currentTags.contains(newTag))
+            return hashtagRepository.saveAndFlush(newTag);
+
+        return currentTags.stream().findFirst().get();
     }
 }
 

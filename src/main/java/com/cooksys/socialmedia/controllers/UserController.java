@@ -2,6 +2,7 @@ package com.cooksys.socialmedia.controllers;
 
 import java.util.List;
 
+import com.cooksys.socialmedia.services.TweetService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import java.util.List;
 public class UserController {
 	
 	private final UserService userService;
+	private final TweetService tweetService;
 
 	@GetMapping
 	public List<UserResponseDto> getAllActiveUsers() {
@@ -58,6 +60,6 @@ public class UserController {
 
 	@GetMapping("/@{username}/tweets")
 	public List<TweetResponseDto> getUserTweets(@PathVariable String username) {
-		return userService.getUserTweets(username);
+		return tweetService.getUserTweets(username);
 	}
 }

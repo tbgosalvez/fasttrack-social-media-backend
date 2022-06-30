@@ -69,6 +69,18 @@ public class TweetServiceImpl implements TweetService {
         return tweetRepository.findAll();
     }
 
+
+    @Override
+    public List<TweetResponseDto> getUserTweets(String username) {
+        List<Tweet> tweets = getAllTweets();
+        List<Tweet> userTweets = new ArrayList<>();
+        for (Tweet tweet : tweets) {
+            if (tweet.getAuthor().getCredentials().getUsername().toLowerCase().equals(username.toLowerCase()) && !tweet.isDeleted())
+                userTweets.add(tweet);
+        }
+        return tweetMapper.entitiesToDtos(userTweets);
+    }
+
     @Override
     public List<TweetResponseDto> getReplies(Long id) {
         Tweet repliedTweet = getTweetById(id);
@@ -179,13 +191,15 @@ public class TweetServiceImpl implements TweetService {
 
         matcher.results()
                 .forEach(matchResult -> {
-                    String hashtagUsed = matchResult.group().substring(1);
-                    Hashtag insertedHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
-                    newHashtagsToAdd.add(insertedHashtag);
+                    String hashtagUsed = matchResult.group();
+                    Hashtag resultantHashtag = hashtagService.getByLabel(hashtagUsed);
+                    if(resultantHashtag == null)
+                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
+
+                    tweet.getHashtags().add(resultantHashtag);
+                    resultantHashtag.getTweets().add(tweet);
                 });
 
-        tweet.getHashtags().addAll(newHashtagsToAdd);
-        newHashtagsToAdd.forEach(hashtag -> hashtag.getTweets().add(tweet));
         tweetRepository.saveAndFlush(tweet);
     }
 }

@@ -13,6 +13,8 @@ public interface TweetService {
 
 	List<Tweet> getAllTweets();
 
+	List<TweetResponseDto> getUserTweets(String username);
+
 	TweetResponseDto getTweetResponseById(Long id);
 
 	List<TweetResponseDto> getReplies(Long id);
