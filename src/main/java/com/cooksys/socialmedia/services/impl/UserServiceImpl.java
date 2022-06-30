@@ -16,7 +16,6 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
-import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import com.cooksys.socialmedia.services.ValidateService;
 
@@ -153,5 +152,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> updateUsers(List<User> users) {
         return userRepository.saveAllAndFlush(users);
+    }
+
+    @Override
+    public UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException {
+        User deletedUser = getUserByCredentials(credentialsDto);
+
+        if(deletedUser.isDeleted())
+            throw new NotFoundException("User has already been deleted.");
+        
+        deletedUser.setDeleted(true);
+        userRepository.saveAndFlush(deletedUser);
+
+        return userMapper.entityToDto(deletedUser);
     }
 }

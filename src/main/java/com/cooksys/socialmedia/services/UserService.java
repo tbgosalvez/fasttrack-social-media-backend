@@ -31,4 +31,6 @@ public interface UserService {
   List<UserResponseDto> getUserFollowers(String username);
 
   List<User> updateUsers(List<User> users);
+
+  UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
 }
