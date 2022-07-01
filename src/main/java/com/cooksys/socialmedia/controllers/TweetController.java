@@ -3,6 +3,10 @@ package com.cooksys.socialmedia.controllers;
 import java.util.List;
 
 import com.cooksys.socialmedia.dtos.*;
+import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.exceptions.BadRequestException;
+import com.cooksys.socialmedia.mappers.TweetMapper;
+import com.cooksys.socialmedia.services.impl.TweetServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +22,8 @@ public class TweetController {
 	
 	private final TweetService tweetService;
 	private final UserService userService;
-	
+	private final TweetMapper tweetMapper;
+
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets(){
 		return tweetService.getAllTweetResponseDtos();
@@ -58,7 +63,29 @@ public class TweetController {
 	@ResponseStatus(HttpStatus.OK)
 	public TweetResponseDto createTweet(@RequestBody TweetRequestDto newTweet) {
 		userService.validateCredentials(newTweet.getCredentials());
-		return tweetService.createTweet(newTweet);
+		return tweetService.createTweet(requestDto -> {
+			if(requestDto.getContent().isBlank())
+				throw new BadRequestException("Tweet cannot be blank.");
+
+			Tweet postedTweet = tweetMapper.requestDtoToEntity(requestDto);
+			postedTweet.setAuthor(userService.getUserByCredentials(requestDto.getCredentials()));
+			return postedTweet;
+		}, newTweet);
+	}
+
+	@PostMapping("/{id}/reply")
+	@ResponseStatus(HttpStatus.CREATED)
+	public TweetResponseDto createReplyTweet(@PathVariable Long id, @RequestBody TweetRequestDto reqTweet) {
+		userService.validateCredentials(reqTweet.getCredentials());
+		return tweetService.createTweet(requestDto -> {
+			if(requestDto.getContent().isBlank())
+				throw new BadRequestException("Tweet cannot be blank.");
+
+			Tweet postedTweet = tweetMapper.requestDtoToEntity(requestDto);
+			postedTweet.setAuthor(userService.getUserByCredentials(requestDto.getCredentials()));
+			postedTweet.setInReplyTo(tweetService.getTweetById(id));
+			return postedTweet;
+		},reqTweet);
 	}
 
 	@DeleteMapping("/{id}")
