@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService {
 		if (!followingUser.getFollowing().contains(userToFollow)) {
 			followingUser.getFollowing().add(userToFollow);			
 		} else {
-			throw new BadRequestException("Already a follower");
+			throw new NotAuthorizedException("Already a follower");
 		}
 		userRepository.saveAllAndFlush(Arrays.asList(userToFollow, followingUser));
 	}
@@ -190,15 +190,15 @@ public class UserServiceImpl implements UserService {
 		if (!validateService.doesUsernameExist(username)) {
 			throw new NotFoundException("@" + username + " not found.");
 		}
-		User userWhoIsUnfollowing = getUserEntityByName(username);
-		if (userWhoIsUnfollowing.isDeleted()) {
-			throw new NotFoundException(userWhoIsUnfollowing.getCredentials().getUsername() + " is deleted.");
+		User userToUnfollow = getUserEntityByName(username);
+		if (userToUnfollow.isDeleted()) {
+			throw new NotFoundException(userToUnfollow.getCredentials().getUsername() + " is deleted.");
 		}
-		User userToUnfollow = getUserEntityByName(unfollowUser.getUsername());
+		User userWhoIsUnfollowing = getUserEntityByName(unfollowUser.getUsername());
 		if (userToUnfollow.getFollowers().contains(userWhoIsUnfollowing)) {
 			userToUnfollow.getFollowers().remove(userWhoIsUnfollowing);
 		} else {
-			throw new BadRequestException("Not a follower of " + userToUnfollow.getCredentials().getUsername());
+			throw new NotFoundException("Not a follower of " + userToUnfollow.getCredentials().getUsername());
 		}
 		if (userWhoIsUnfollowing.getFollowing().contains(userToUnfollow)) {
 			userWhoIsUnfollowing.getFollowing().remove(userToUnfollow);
