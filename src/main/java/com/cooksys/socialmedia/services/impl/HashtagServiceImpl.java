@@ -64,8 +64,7 @@ public class HashtagServiceImpl implements HashtagService {
     }
 
     @Override
-    public List<TweetResponseDto> getTweetsWithTag(String label) {
-        List<Tweet> allTweets = tweetRepository.findAll();
+    public List<TweetResponseDto> getTweetsWithTag(String label, List<Tweet> allTweets) {
         List<Tweet> tweetsToReturn = new ArrayList<>();
         for (Tweet tweet : allTweets) {
             if (!tweet.isDeleted() && tweet.getContent().contains(label)) {
