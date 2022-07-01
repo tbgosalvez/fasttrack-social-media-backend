@@ -15,23 +15,31 @@ public interface UserService {
 
 	List<UserResponseDto> getAllActiveUserDtos();
 
-    List<User> getAllActiveUsers();
+	List<User> getAllActiveUsers();
 
-  void validateCredentials(CredentialsDto creds) throws NotAuthorizedException;
+	void validateCredentials(CredentialsDto creds) throws NotAuthorizedException;
 
 	List<TweetResponseDto> getUserMentions(String username);
 
 	UserResponseDto getUserByName(String username);
 
-    User getUserByCredentials(CredentialsDto creds) throws NotFoundException;
-	
-  UserResponseDto createUser(UserRequestDto userRequestDto);
+	User getUserByCredentials(CredentialsDto creds) throws NotFoundException;
 
-  List<UserResponseDto> getUserFollowing(String username);
+	UserResponseDto createUser(UserRequestDto userRequestDto);
 
-  List<UserResponseDto> getUserFollowers(String username);
+	List<UserResponseDto> getUserFollowing(String username);
 
   List<User> updateUsers(List<User> users);
 
 	UserResponseDto updateUser(String username, UserRequestDto incomingUser);
+
+  List<UserResponseDto> getUserFollowers(String username);
+
+  List<TweetResponseDto> getUserFeed(String username);
+
+  String setFollowing(String username, CredentialsDto followingUser);
+
+	String setUnfollow(String username, CredentialsDto unfollowUser);
+
+  UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
 }
