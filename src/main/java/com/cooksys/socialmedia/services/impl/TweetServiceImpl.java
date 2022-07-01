@@ -251,4 +251,10 @@ public class TweetServiceImpl implements TweetService {
 		contextDto.setAfter(tweetMapper.entitiesToDtos(afterTweets));
 		return contextDto;
 	}
+
+    @Override
+    public void likeTweet(Tweet tweet, User user) {
+        tweet.getLikedByUsers().add(user);
+        tweetRepository.saveAndFlush(tweet);
+    }
 }
