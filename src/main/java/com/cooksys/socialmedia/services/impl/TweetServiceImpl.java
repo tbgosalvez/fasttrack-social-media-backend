@@ -1,6 +1,20 @@
 package com.cooksys.socialmedia.services.impl;
 
-import com.cooksys.socialmedia.dtos.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Service;
+
+import com.cooksys.socialmedia.dtos.ContextDto;
+import com.cooksys.socialmedia.dtos.CredentialsDto;
+import com.cooksys.socialmedia.dtos.HashtagDto;
+import com.cooksys.socialmedia.dtos.TweetRequestDto;
+import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
@@ -11,24 +25,19 @@ import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
+import com.cooksys.socialmedia.repositories.UserRepository;
 import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
 
     private final TweetRepository tweetRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final HashtagService hashtagService;
     private final TweetMapper tweetMapper;
@@ -77,6 +86,10 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public List<TweetResponseDto> getUserTweets(String username) {
+    	User user = userService.getUserEntityByName(username);
+    	if(user.isDeleted()) {
+    		throw new BadRequestException("Account has been deleted");
+    	}
         List<Tweet> tweets = getAllTweets();
         List<Tweet> userTweets = new ArrayList<>();
         for (Tweet tweet : tweets) {
@@ -102,19 +115,27 @@ public class TweetServiceImpl implements TweetService {
     @Override
     public List<TweetResponseDto> getReposts(Long id) {
         Tweet originalTweet = getTweetById(id);
-
-        List<Tweet> repostedTweets =
-                tweetRepository.findAll()
-                        .stream()
-                        .filter(tweet -> originalTweet.getReposts().contains(tweet) && !tweet.isDeleted())
-                        .toList();
-
+        List<Tweet> allTweets = tweetRepository.findAll();
+        List<Tweet> repostedTweets = new ArrayList<Tweet>();
+        for (Tweet tweet : allTweets) {
+        	if(originalTweet.getReposts().contains(tweet)&& !tweet.isDeleted()) {
+        		repostedTweets.add(tweet);
+        	}
+        }
+        
         return tweetMapper.entitiesToDtos(repostedTweets);
     }
 
     public List<UserResponseDto> getLikedByUsers(Long id) {
         Tweet incomingTweet = getTweetById(id);
-        return userMapper.entitiesToDtos(incomingTweet.getLikedByUsers());
+        List<User> allUsers = userRepository.findAll();
+        List<User> likedBy = new ArrayList<User>();
+        for (User user : allUsers) {
+        	if(user.getLikedTweets().contains(incomingTweet)&& !user.isDeleted()) {
+        		likedBy.add(user);
+        	}
+        }
+        return userMapper.entitiesToDtos(likedBy);
     }
 
     @Override
@@ -145,6 +166,9 @@ public class TweetServiceImpl implements TweetService {
 
     public TweetResponseDto createTweet(TweetProps tweetProps, TweetRequestDto tweetReqDto) throws BadRequestException {
         Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
+        if(tweetReqDto.getContent() == null) {
+        	throw new BadRequestException("Not content");
+        }
 
         postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
 
@@ -193,14 +217,13 @@ public class TweetServiceImpl implements TweetService {
     public void parseForHashtags(Tweet tweet) {
         Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(tweet.getContent());
-        List<Hashtag> newHashtagsToAdd = new ArrayList<>();
 
         matcher.results()
                 .forEach(matchResult -> {
                     String hashtagUsed = matchResult.group();
                     Hashtag resultantHashtag = hashtagService.getByLabel(hashtagUsed);
                     if (resultantHashtag == null)
-                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
+                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.substring(1)));
 
                     tweet.getHashtags().add(resultantHashtag);
                     resultantHashtag.getTweets().add(tweet);
@@ -257,4 +280,6 @@ public class TweetServiceImpl implements TweetService {
         tweet.getLikedByUsers().add(user);
         tweetRepository.saveAndFlush(tweet);
     }
+
+
 }

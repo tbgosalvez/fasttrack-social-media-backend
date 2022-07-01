@@ -42,4 +42,6 @@ public interface UserService {
     UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
 
     void likeTweet(Tweet tweet, User user);
+
+	User getUserEntityByName(String username);
 }

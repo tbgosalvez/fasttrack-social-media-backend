@@ -98,12 +98,12 @@ public class TweetController {
 
         }, reqTweet);
     }
-
+    
     @PostMapping("/{id}/repost")
     @ResponseStatus(HttpStatus.CREATED)
     public TweetResponseDto createRepostTweet(@PathVariable Long id, @RequestBody CredentialsDto creds) {
         userService.getUserByCredentials(creds);
-        return tweetService.createTweet(tweetEntity -> tweetEntity.setRepostOf(tweetService.getTweetById(id)), new TweetRequestDto(null, creds));
+        return tweetService.createTweet(tweetEntity -> tweetEntity.setRepostOf(tweetService.getTweetById(id)), new TweetRequestDto("", creds));
     }
 
     @PostMapping("/{id}/like")
