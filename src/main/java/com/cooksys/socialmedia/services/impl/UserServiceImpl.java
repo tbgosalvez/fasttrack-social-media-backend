@@ -1,7 +1,5 @@
 package com.cooksys.socialmedia.services.impl;
 
-import org.springframework.stereotype.Service;
-
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
@@ -16,11 +14,10 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
-import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
 import com.cooksys.socialmedia.services.ValidateService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByCredentials(CredentialsDto creds) throws NotFoundException {
         Optional<User> user = userRepository.findByCredentials(credentialsMapper.dtoToEntity(creds));
-        if(user.isEmpty())
+        if (user.isEmpty())
             throw new NotFoundException("User not found with that username/password.");
 
         return user.get();

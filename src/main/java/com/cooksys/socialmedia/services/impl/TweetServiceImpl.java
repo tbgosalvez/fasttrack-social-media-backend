@@ -193,7 +193,7 @@ public class TweetServiceImpl implements TweetService {
                 .forEach(matchResult -> {
                     String hashtagUsed = matchResult.group();
                     Hashtag resultantHashtag = hashtagService.getByLabel(hashtagUsed);
-                    if(resultantHashtag == null)
+                    if (resultantHashtag == null)
                         resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
 
                     tweet.getHashtags().add(resultantHashtag);

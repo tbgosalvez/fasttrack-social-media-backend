@@ -1,40 +1,37 @@
 package com.cooksys.socialmedia.entities;
 
-import java.sql.Timestamp;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.*;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
 @Data
 public class Hashtag {
-	
-	@Id
-	@GeneratedValue
-	private Long id;
 
-	@Column(nullable = false, unique = true)
-	private String label;
+    @Id
+    @GeneratedValue
+    private Long id;
 
-	@CreationTimestamp
-	private Timestamp firstUsed;
+    @Column(nullable = false, unique = true)
+    private String label;
 
-	@UpdateTimestamp
-	private Timestamp lastUsed;
+    @CreationTimestamp
+    private Timestamp firstUsed;
 
-	@ManyToMany(mappedBy = "hashtags", cascade = CascadeType.ALL)
-	private List<Tweet> tweets = new ArrayList<>();
+    @UpdateTimestamp
+    private Timestamp lastUsed;
 
-	public Hashtag(String newLabel) {
-		label = newLabel;
-	}
+    @ManyToMany(mappedBy = "hashtags", cascade = CascadeType.ALL)
+    private List<Tweet> tweets = new ArrayList<>();
+
+    public Hashtag(String newLabel) {
+        label = newLabel;
+    }
 }

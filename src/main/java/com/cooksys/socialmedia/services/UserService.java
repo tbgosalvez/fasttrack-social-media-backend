@@ -12,23 +12,23 @@ import java.util.List;
 
 public interface UserService {
 
-	List<UserResponseDto> getAllActiveUserDtos();
+    List<UserResponseDto> getAllActiveUserDtos();
 
     List<User> getAllActiveUsers();
 
-  void validateCredentials(CredentialsDto creds) throws NotAuthorizedException;
+    void validateCredentials(CredentialsDto creds) throws NotAuthorizedException;
 
-	List<TweetResponseDto> getUserMentions(String username);
+    List<TweetResponseDto> getUserMentions(String username);
 
-	UserResponseDto getUserByName(String username);
+    UserResponseDto getUserByName(String username);
 
     User getUserByCredentials(CredentialsDto creds) throws NotFoundException;
-	
-  UserResponseDto createUser(UserRequestDto userRequestDto);
 
-  List<UserResponseDto> getUserFollowing(String username);
+    UserResponseDto createUser(UserRequestDto userRequestDto);
 
-  List<UserResponseDto> getUserFollowers(String username);
+    List<UserResponseDto> getUserFollowing(String username);
 
-  List<User> updateUsers(List<User> users);
+    List<UserResponseDto> getUserFollowers(String username);
+
+    List<User> updateUsers(List<User> users);
 }

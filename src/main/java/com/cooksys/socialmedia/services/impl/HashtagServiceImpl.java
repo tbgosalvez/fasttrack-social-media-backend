@@ -8,12 +8,9 @@ import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.HashtagRepository;
-import com.cooksys.socialmedia.repositories.TweetRepository;
-import org.springframework.stereotype.Service;
-
 import com.cooksys.socialmedia.services.HashtagService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,8 +22,6 @@ import java.util.Optional;
 public class HashtagServiceImpl implements HashtagService {
     private final HashtagRepository hashtagRepository;
     private final HashtagMapper hashtagMapper;
-
-    private final TweetRepository tweetRepository;
 
     private final TweetMapper tweetMapper;
 
@@ -43,7 +38,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     public Hashtag getByLabel(String label) {
         Optional<Hashtag> hashtag = hashtagRepository.findByLabel(label);
-        if(hashtag.isEmpty())
+        if (hashtag.isEmpty())
             return null;
 
         return hashtag.get();
@@ -57,7 +52,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     public Hashtag addNewTag(Hashtag newTag) {
         List<Hashtag> currentTags = getAllTags();
-        if(!currentTags.contains(newTag))
+        if (!currentTags.contains(newTag))
             return hashtagRepository.saveAndFlush(newTag);
 
         return currentTags.stream().findFirst().get();
