@@ -160,25 +160,26 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void setFollowing(String username, CredentialsDto followingUser) {
-		User incomingUser = getUserEntityByName(username);
-		User follower = getUserEntityByName(followingUser.getUsername());
-		List<User> followers = incomingUser.getFollowers();
-		List<User> following = follower.getFollowing();
+	public void setFollowing(String username, CredentialsDto credentialsDto) {
 		if (!validateService.doesUsernameExist(username)) {
 			throw new NotFoundException("@" + username + " not found.");
 		}
-		if (incomingUser.isDeleted()) {
-			throw new NotFoundException(incomingUser.getCredentials().getUsername() + " is deleted.");
+		User userToFollow = getUserEntityByName(username);
+		if (userToFollow.isDeleted()) {
+			throw new NotFoundException(userToFollow.getCredentials().getUsername() + " is deleted.");
 		}
-		for (User user : followers) {
-			if (follower.getCredentials().getUsername().equals(user.getCredentials().getUsername())) {
-				throw new BadRequestException("Already following.");
-			}
+		User followingUser = getUserEntityByName(credentialsDto.getUsername());
+		if (!userToFollow.getFollowers().contains(userToFollow)) {
+			userToFollow.getFollowers().add(followingUser);			
+		} else {
+			throw new BadRequestException("Already following");
 		}
-		followers.add(follower);
-		following.add(incomingUser);
-		userRepository.saveAllAndFlush(Arrays.asList(incomingUser, follower));
+		if (!followingUser.getFollowing().contains(userToFollow)) {
+			followingUser.getFollowing().add(userToFollow);			
+		} else {
+			throw new BadRequestException("Already a follower");
+		}
+		userRepository.saveAllAndFlush(Arrays.asList(userToFollow, followingUser));
 	}
 
 	@Override
@@ -191,17 +192,15 @@ public class UserServiceImpl implements UserService {
 			throw new NotFoundException(userWhoIsUnfollowing.getCredentials().getUsername() + " is deleted.");
 		}
 		User userToUnfollow = getUserEntityByName(unfollowUser.getUsername());
-		List<User> following = userWhoIsUnfollowing.getFollowing();
-		List<User> followersOfUserToUnfollow = userToUnfollow.getFollowers();
-		if (!followersOfUserToUnfollow.contains(userWhoIsUnfollowing)) {
+		if (userToUnfollow.getFollowers().contains(userWhoIsUnfollowing)) {
+			userToUnfollow.getFollowers().remove(userWhoIsUnfollowing);
+		} else {
 			throw new BadRequestException("Not a follower of " + userToUnfollow.getCredentials().getUsername());
-		} else {
-			followersOfUserToUnfollow.remove(userWhoIsUnfollowing);
 		}
-		if (!following.contains(userToUnfollow)) {
-			throw new BadRequestException("Not following");
+		if (userWhoIsUnfollowing.getFollowing().contains(userToUnfollow)) {
+			userWhoIsUnfollowing.getFollowing().remove(userToUnfollow);
 		} else {
-			following.remove(userToUnfollow);
+			throw new BadRequestException("Not following");
 		}
 		userRepository.saveAllAndFlush(Arrays.asList(userWhoIsUnfollowing, userToUnfollow));
 	}
