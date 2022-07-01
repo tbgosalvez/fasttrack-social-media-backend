@@ -259,4 +259,10 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.entityToDto(deletedUser);
     }
+
+    @Override
+    public void likeTweet(Tweet tweet, User user) {
+        user.getLikedTweets().add(tweet);
+        userRepository.saveAndFlush(user);
+    }
 }

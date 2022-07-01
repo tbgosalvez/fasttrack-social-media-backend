@@ -2,6 +2,7 @@ package com.cooksys.socialmedia.services;
 
 import com.cooksys.socialmedia.dtos.*;
 import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.services.impl.TweetServiceImpl;
 
@@ -38,4 +39,6 @@ public interface TweetService {
 	TweetResponseDto createTweet(TweetServiceImpl.TweetProps tweetSetup, TweetRequestDto newTweet) throws BadRequestException;
 
 	ContextDto getContext(Long id);
+
+    void likeTweet(Tweet tweet, User user);
 }

@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.cooksys.socialmedia.dtos.*;
 import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.mappers.TweetMapper;
-import com.cooksys.socialmedia.services.impl.TweetServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,6 +87,18 @@ public class TweetController {
 	public TweetResponseDto createRepostTweet(@PathVariable Long id, @RequestBody CredentialsDto creds) {
 		userService.validateCredentials(creds);
 		return tweetService.createTweet(tweetEntity -> tweetEntity.setRepostOf(tweetService.getTweetById(id)), new TweetRequestDto(null, creds));
+	}
+
+	@PostMapping("/{id}/like")
+	@ResponseStatus(HttpStatus.OK)
+	public void likeTweet(@PathVariable Long id, @RequestBody CredentialsDto creds) {
+		userService.validateCredentials(creds);
+
+		Tweet coolTweet = tweetService.getTweetById(id);
+		User coolUser = userService.getUserByCredentials(creds);
+
+		tweetService.likeTweet(coolTweet, coolUser);
+		userService.likeTweet(coolTweet, coolUser);
 	}
 
 	@DeleteMapping("/{id}")
