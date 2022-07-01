@@ -21,7 +21,7 @@ public class Seeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//
+
 //        // --- User 1 ---
 //        // Credentials
 //        Credentials user1Cred = new Credentials();
@@ -207,7 +207,7 @@ public class Seeder implements CommandLineRunner {
 //        tweet6.setAuthor(user3);
 //        tweet6.setDeleted(false);
 //        // Set Content @PARAM String
-//        tweet6.setContent("This is some content 6 mentions therealmc and mario tweet6");
+//        tweet6.setRepostOf(tweet5);
 //        tweet6.setMentionedUsers(Arrays.asList(user1, user2));
 //        tweet6.setInReplyTo(tweet2);
 //        tweetRepository.saveAndFlush(tweet6);
@@ -244,6 +244,9 @@ public class Seeder implements CommandLineRunner {
 //
 //        user3.setLikedTweets(user2Tweets);
 //        userRepository.saveAndFlush(user3);
+//        
+//        deletedUser.setLikedTweets(user2Tweets);
+//        userRepository.saveAndFlush(deletedUser);
 //
 //        // ----- List of Following -----
 //        List<User> followingList = List.of(user2, user3, user4);

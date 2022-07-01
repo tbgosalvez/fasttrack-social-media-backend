@@ -25,6 +25,7 @@ import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
+import com.cooksys.socialmedia.repositories.UserRepository;
 import com.cooksys.socialmedia.services.HashtagService;
 import com.cooksys.socialmedia.services.TweetService;
 import com.cooksys.socialmedia.services.UserService;
@@ -36,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class TweetServiceImpl implements TweetService {
 
     private final TweetRepository tweetRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final HashtagService hashtagService;
     private final TweetMapper tweetMapper;
@@ -113,19 +115,27 @@ public class TweetServiceImpl implements TweetService {
     @Override
     public List<TweetResponseDto> getReposts(Long id) {
         Tweet originalTweet = getTweetById(id);
-
-        List<Tweet> repostedTweets =
-                tweetRepository.findAll()
-                        .stream()
-                        .filter(tweet -> originalTweet.getReposts().contains(tweet) && !tweet.isDeleted())
-                        .toList();
-
+        List<Tweet> allTweets = tweetRepository.findAll();
+        List<Tweet> repostedTweets = new ArrayList<Tweet>();
+        for (Tweet tweet : allTweets) {
+        	if(originalTweet.getReposts().contains(tweet)&& !tweet.isDeleted()) {
+        		repostedTweets.add(tweet);
+        	}
+        }
+        
         return tweetMapper.entitiesToDtos(repostedTweets);
     }
 
     public List<UserResponseDto> getLikedByUsers(Long id) {
         Tweet incomingTweet = getTweetById(id);
-        return userMapper.entitiesToDtos(incomingTweet.getLikedByUsers());
+        List<User> allUsers = userRepository.findAll();
+        List<User> likedBy = new ArrayList<User>();
+        for (User user : allUsers) {
+        	if(user.getLikedTweets().contains(incomingTweet)&& !user.isDeleted()) {
+        		likedBy.add(user);
+        	}
+        }
+        return userMapper.entitiesToDtos(likedBy);
     }
 
     @Override
