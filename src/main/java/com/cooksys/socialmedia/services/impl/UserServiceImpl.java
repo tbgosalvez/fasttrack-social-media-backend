@@ -109,6 +109,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(String username, UserRequestDto userRequestDto) {
+    	if (userRequestDto.getCredentials() == null || userRequestDto.getCredentials().getUsername() == null || userRequestDto.getCredentials().getPassword() == null) {
+    		throw new NotAuthorizedException("No credentials present");
+    	}
+    	if (userRequestDto.getProfile() == null) {
+    		throw new NotAuthorizedException("No profile present");
+    	}
         if (!userRequestDto.getCredentials().getUsername().equals(username))
             throw new BadRequestException("Wrong user to modify or wrong username sent");
 
