@@ -16,6 +16,7 @@ import com.cooksys.socialmedia.services.HashtagService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ public class HashtagServiceImpl implements HashtagService {
         Optional<Hashtag> hashtag = hashtagRepository.findByLabel(label);
         if(hashtag.isEmpty())
             return null;
+
         return hashtag.get();
     }
 
@@ -62,18 +64,20 @@ public class HashtagServiceImpl implements HashtagService {
     }
 
     @Override
-    public List<TweetResponseDto> getTagsWithLabel(String label) {
+    public List<TweetResponseDto> getTweetsWithTag(String label) {
         List<Tweet> allTweets = tweetRepository.findAll();
         List<Tweet> tweetsToReturn = new ArrayList<>();
         for (Tweet tweet : allTweets) {
-            if (tweet.getContent().contains(label)) {
+            if (!tweet.isDeleted() && tweet.getContent().contains(label)) {
                 tweetsToReturn.add(tweet);
             }
         }
         if (tweetsToReturn.isEmpty())
             throw new NotFoundException("No tweets with this hashtag found.");
+
+        tweetsToReturn.sort(Comparator.comparing(Tweet::getPosted).reversed());
+
         return tweetMapper.entitiesToDtos(tweetsToReturn);
-        // Needs Reverse Chronological order
     }
 }
 
