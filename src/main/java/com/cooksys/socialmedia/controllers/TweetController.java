@@ -57,6 +57,7 @@ public class TweetController {
         return tweetService.getTags(id);
     }
 
+
     @GetMapping("/{id}/context")
     public ContextDto getContext(@PathVariable Long id) {
         return tweetService.getContext(id);

@@ -1,13 +1,19 @@
 package com.cooksys.socialmedia.services.impl;
 
 import com.cooksys.socialmedia.dtos.HashtagDto;
+import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.entities.Hashtag;
+import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
+import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.HashtagRepository;
 import com.cooksys.socialmedia.services.HashtagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +22,8 @@ import java.util.Optional;
 public class HashtagServiceImpl implements HashtagService {
     private final HashtagRepository hashtagRepository;
     private final HashtagMapper hashtagMapper;
+
+    private final TweetMapper tweetMapper;
 
     @Override
     public List<Hashtag> getAllTags() {
@@ -32,6 +40,7 @@ public class HashtagServiceImpl implements HashtagService {
         Optional<Hashtag> hashtag = hashtagRepository.findByLabel(label);
         if (hashtag.isEmpty())
             return null;
+
         return hashtag.get();
     }
 
@@ -47,6 +56,22 @@ public class HashtagServiceImpl implements HashtagService {
             return hashtagRepository.saveAndFlush(newTag);
 
         return currentTags.stream().findFirst().get();
+    }
+
+    @Override
+    public List<TweetResponseDto> getTweetsWithTag(String label, List<Tweet> allTweets) {
+        List<Tweet> tweetsToReturn = new ArrayList<>();
+        for (Tweet tweet : allTweets) {
+            if (!tweet.isDeleted() && tweet.getContent().contains(label)) {
+                tweetsToReturn.add(tweet);
+            }
+        }
+        if (tweetsToReturn.isEmpty())
+            throw new NotFoundException("No tweets with this hashtag found.");
+
+        tweetsToReturn.sort(Comparator.comparing(Tweet::getPosted).reversed());
+
+        return tweetMapper.entitiesToDtos(tweetsToReturn);
     }
 }
 
