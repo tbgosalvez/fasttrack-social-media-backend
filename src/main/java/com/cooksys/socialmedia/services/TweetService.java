@@ -38,6 +38,4 @@ public interface TweetService {
 	TweetResponseDto createTweet(TweetServiceImpl.TweetProps tweetSetup, TweetRequestDto newTweet) throws BadRequestException;
 
 	ContextDto getContext(Long id);
-
-	TweetResponseDto createReplyTweet(TweetRequestDto reqTweet);
 }

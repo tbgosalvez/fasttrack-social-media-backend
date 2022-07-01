@@ -66,10 +66,6 @@ public class TweetController {
 		return tweetService.createTweet(requestDto -> {
 			if(requestDto.getContent().isBlank())
 				throw new BadRequestException("Tweet cannot be blank.");
-
-			Tweet postedTweet = tweetMapper.requestDtoToEntity(requestDto);
-			postedTweet.setAuthor(userService.getUserByCredentials(requestDto.getCredentials()));
-			return postedTweet;
 		}, newTweet);
 	}
 
@@ -77,15 +73,20 @@ public class TweetController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public TweetResponseDto createReplyTweet(@PathVariable Long id, @RequestBody TweetRequestDto reqTweet) {
 		userService.validateCredentials(reqTweet.getCredentials());
-		return tweetService.createTweet(requestDto -> {
-			if(requestDto.getContent().isBlank())
+		return tweetService.createTweet(tweetEntity -> {
+			if(tweetEntity.getContent().isBlank())
 				throw new BadRequestException("Tweet cannot be blank.");
 
-			Tweet postedTweet = tweetMapper.requestDtoToEntity(requestDto);
-			postedTweet.setAuthor(userService.getUserByCredentials(requestDto.getCredentials()));
-			postedTweet.setInReplyTo(tweetService.getTweetById(id));
-			return postedTweet;
+			tweetEntity.setInReplyTo(tweetService.getTweetById(id));
+
 		},reqTweet);
+	}
+
+	@PostMapping("/{id}/repost")
+	@ResponseStatus(HttpStatus.CREATED)
+	public TweetResponseDto createRepostTweet(@PathVariable Long id, @RequestBody CredentialsDto creds) {
+		userService.validateCredentials(creds);
+		return tweetService.createTweet(tweetEntity -> tweetEntity.setRepostOf(tweetService.getTweetById(id)), new TweetRequestDto(null, creds));
 	}
 
 	@DeleteMapping("/{id}")

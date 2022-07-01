@@ -43,7 +43,8 @@ public class TweetServiceImpl implements TweetService {
     private final HashtagMapper hashtagMapper;
 
     public interface TweetProps {
-        Tweet setupTweetEntity(TweetRequestDto dto);
+        // doesn't need to return 'cuz it just mutates
+        void setupTweetEntity(Tweet entity);
     }
 
     @Override
@@ -151,11 +152,17 @@ public class TweetServiceImpl implements TweetService {
     }
 
     public TweetResponseDto createTweet(TweetProps tweetProps, TweetRequestDto tweetReqDto) throws BadRequestException {
-        Tweet postedTweet = tweetProps.setupTweetEntity(tweetReqDto);
+        Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
+
+        postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
+        tweetProps.setupTweetEntity(postedTweet);
 
         Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
-        parseForUserMentions(insertedTweet);
-        parseForHashtags(insertedTweet);
+
+        if (postedTweet.getContent() != null) {
+            parseForUserMentions(insertedTweet);
+            parseForHashtags(insertedTweet);
+        }
 
         return tweetMapper.entityToDto(insertedTweet);
     }
@@ -244,9 +251,4 @@ public class TweetServiceImpl implements TweetService {
 		contextDto.setAfter(tweetMapper.entitiesToDtos(afterTweets));
 		return contextDto;
 	}
-
-    @Override
-    public TweetResponseDto createReplyTweet(TweetRequestDto reqTweet) {
-        return null;
-    }
 }
