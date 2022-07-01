@@ -84,6 +84,10 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public List<TweetResponseDto> getUserTweets(String username) {
+    	User user = userService.getUserEntityByName(username);
+    	if(user.isDeleted()) {
+    		throw new BadRequestException("Account has been deleted");
+    	}
         List<Tweet> tweets = getAllTweets();
         List<Tweet> userTweets = new ArrayList<>();
         for (Tweet tweet : tweets) {
@@ -209,7 +213,7 @@ public class TweetServiceImpl implements TweetService {
                     String hashtagUsed = matchResult.group();
                     Hashtag resultantHashtag = hashtagService.getByLabel(hashtagUsed);
                     if (resultantHashtag == null)
-                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed));
+                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.substring(1)));
 
                     tweet.getHashtags().add(resultantHashtag);
                     resultantHashtag.getTweets().add(tweet);
