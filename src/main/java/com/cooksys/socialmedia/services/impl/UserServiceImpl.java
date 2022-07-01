@@ -80,15 +80,19 @@ public class UserServiceImpl implements UserService {
 			throw new NotAuthorizedException("No profile present");
 		}
 		User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
-		if (!validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername())) {
+		List<User> allUsers = userRepository.findAll();
+		for(User user : allUsers) {
+			if(user.isDeleted() && user.getCredentials().getUsername().equals(incomingUser.getCredentials().getUsername())) {
+				incomingUser = user;
+				incomingUser.setDeleted(false);
+			}
+		}
+		if (!(validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername()))&& !incomingUser.isDeleted()) {
 			throw new NotAuthorizedException("Username not available.");
 		}
 		if (incomingUser.getCredentials().getUsername() == null || incomingUser.getCredentials().getPassword() == null
 				|| incomingUser.getProfile().getEmail() == null) {
 			throw new BadRequestException("Must have Username, Password, and Email.");
-		}
-		if (incomingUser.isDeleted()) {
-			incomingUser.setDeleted(false);
 		}
 		return userMapper.entityToDto(userRepository.saveAndFlush(incomingUser));
 	}
@@ -98,7 +102,6 @@ public class UserServiceImpl implements UserService {
 		if (!validateService.doesUsernameExist(username)) {
 			throw new NotFoundException("User not found.");
 		}
-
 		return userMapper.entitiesToDtos(getUserEntityByName(username).getFollowing());
 	}
 

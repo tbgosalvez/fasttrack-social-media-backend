@@ -152,6 +152,9 @@ public class TweetServiceImpl implements TweetService {
 
     public TweetResponseDto createTweet(TweetProps tweetProps, TweetRequestDto tweetReqDto) throws BadRequestException {
         Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
+        if(tweetReqDto.getContent() == null) {
+        	throw new BadRequestException("Not content");
+        }
 
         postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
 
@@ -206,7 +209,7 @@ public class TweetServiceImpl implements TweetService {
                     String hashtagUsed = matchResult.group();
                     Hashtag resultantHashtag = hashtagService.getByLabel(hashtagUsed);
                     if (resultantHashtag == null)
-                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed.toLowerCase()));
+                        resultantHashtag = hashtagService.addNewTag(new Hashtag(hashtagUsed));
 
                     tweet.getHashtags().add(resultantHashtag);
                     resultantHashtag.getTweets().add(tweet);
