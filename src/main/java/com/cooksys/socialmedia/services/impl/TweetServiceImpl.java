@@ -4,6 +4,7 @@ import com.cooksys.socialmedia.dtos.*;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
+import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
@@ -33,6 +34,11 @@ public class TweetServiceImpl implements TweetService {
     private final TweetMapper tweetMapper;
     private final UserMapper userMapper;
     private final HashtagMapper hashtagMapper;
+
+    public interface TweetProps {
+        // doesn't need to return 'cuz it just mutates
+        void setupTweetEntity(Tweet entity);
+    }
 
     @Override
     public Tweet getTweetById(Long id) {
@@ -69,13 +75,12 @@ public class TweetServiceImpl implements TweetService {
         return tweetRepository.findAll();
     }
 
-
     @Override
     public List<TweetResponseDto> getUserTweets(String username) {
         List<Tweet> tweets = getAllTweets();
         List<Tweet> userTweets = new ArrayList<>();
         for (Tweet tweet : tweets) {
-            if (tweet.getAuthor().getCredentials().getUsername().toLowerCase().equals(username.toLowerCase()) && !tweet.isDeleted())
+            if (tweet.getAuthor().getCredentials().getUsername().equalsIgnoreCase(username) && !tweet.isDeleted())
                 userTweets.add(tweet);
         }
         return tweetMapper.entitiesToDtos(userTweets);
@@ -138,15 +143,19 @@ public class TweetServiceImpl implements TweetService {
         return tweetMapper.entityToDto(tweetToDelete.get());
     }
 
-    @Override
-    public TweetResponseDto createTweet(TweetRequestDto tweetReqDto) {
+    public TweetResponseDto createTweet(TweetProps tweetProps, TweetRequestDto tweetReqDto) throws BadRequestException {
         Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
 
         postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
 
+        tweetProps.setupTweetEntity(postedTweet);
+
         Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
-        parseForUserMentions(insertedTweet);
-        parseForHashtags(insertedTweet);
+
+        if (postedTweet.getContent() != null) {
+            parseForUserMentions(insertedTweet);
+            parseForHashtags(insertedTweet);
+        }
 
         return tweetMapper.entityToDto(insertedTweet);
     }
@@ -157,12 +166,10 @@ public class TweetServiceImpl implements TweetService {
         return userMapper.entitiesToDtos(incomingTweet.getMentionedUsers());
     }
 
-
     @Override
     public void parseForUserMentions(Tweet tweet) {
         Pattern pattern = Pattern.compile("@\\w+", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(tweet.getContent());
-
         List<User> usersMentioned = new ArrayList<>();
 
         matcher.results()
@@ -186,7 +193,6 @@ public class TweetServiceImpl implements TweetService {
     public void parseForHashtags(Tweet tweet) {
         Pattern pattern = Pattern.compile("#\\w+", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(tweet.getContent());
-
         List<Hashtag> newHashtagsToAdd = new ArrayList<>();
 
         matcher.results()
@@ -200,6 +206,55 @@ public class TweetServiceImpl implements TweetService {
                     resultantHashtag.getTweets().add(tweet);
                 });
 
+        tweetRepository.saveAndFlush(tweet);
+    }
+
+    @Override
+    public ContextDto getContext(Long id) {
+        ContextDto contextDto = new ContextDto();
+        Tweet contextTweet = getTweetById(id);
+
+        if (contextTweet.isDeleted() || contextTweet.equals(null)) {
+            throw new NotFoundException("Not Found");
+        }
+
+        Tweet beforeTweet = contextTweet.getInReplyTo();
+        List<Tweet> before = new ArrayList<Tweet>();
+        List<Tweet> after = contextTweet.getReplies();
+        List<Tweet> afterTweets = new ArrayList<Tweet>();
+
+        afterTweets.addAll(after);
+
+        while (beforeTweet != null) {
+            before.add(beforeTweet);
+            beforeTweet = beforeTweet.getInReplyTo();
+        }
+        for (Tweet tweet : after) {
+            if (tweet.getReplies() != null) {
+                afterTweets.addAll(tweet.getReplies());
+            }
+        }
+        for (Tweet tweet : before) {
+            if (tweet.isDeleted()) {
+                before.remove(tweet);
+            }
+        }
+        for (Tweet tweet : after) {
+            if (tweet.isDeleted()) {
+                after.remove(tweet);
+            }
+        }
+
+        contextDto.setBefore(tweetMapper.entitiesToDtos(before));
+        contextDto.setTarget(tweetMapper.entityToDto(contextTweet));
+        contextDto.setAfter(tweetMapper.entitiesToDtos(afterTweets));
+
+        return contextDto;
+    }
+
+    @Override
+    public void likeTweet(Tweet tweet, User user) {
+        tweet.getLikedByUsers().add(user);
         tweetRepository.saveAndFlush(tweet);
     }
 }

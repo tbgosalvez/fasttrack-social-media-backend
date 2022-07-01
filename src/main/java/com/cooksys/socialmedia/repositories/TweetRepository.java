@@ -8,7 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface TweetRepository extends JpaRepository<Tweet, Long> {
-
     Optional<Tweet> findById(Long id);
-
 }
