@@ -1,25 +1,21 @@
 package com.cooksys.socialmedia.entities;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @Embeddable
 @NoArgsConstructor
 @Data
 public class Credentials {
 
-	@Column(nullable = false, unique = true)
-	private String username;
-	
-	@Column(nullable = false)
-	private String password;
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
 
 
 }

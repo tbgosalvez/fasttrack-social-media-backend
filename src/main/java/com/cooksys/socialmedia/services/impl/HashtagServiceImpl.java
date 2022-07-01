@@ -4,11 +4,9 @@ import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.repositories.HashtagRepository;
-import org.springframework.stereotype.Service;
-
 import com.cooksys.socialmedia.services.HashtagService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +30,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     public Hashtag getByLabel(String label) {
         Optional<Hashtag> hashtag = hashtagRepository.findByLabel(label);
-        if(hashtag.isEmpty())
+        if (hashtag.isEmpty())
             return null;
         return hashtag.get();
     }
@@ -45,7 +43,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     public Hashtag addNewTag(Hashtag newTag) {
         List<Hashtag> currentTags = getAllTags();
-        if(!currentTags.contains(newTag))
+        if (!currentTags.contains(newTag))
             return hashtagRepository.saveAndFlush(newTag);
 
         return currentTags.stream().findFirst().get();

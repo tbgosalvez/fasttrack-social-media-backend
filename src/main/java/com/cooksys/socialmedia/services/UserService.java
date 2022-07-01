@@ -1,7 +1,5 @@
 package com.cooksys.socialmedia.services;
 
-import java.util.List;
-
 import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
@@ -11,37 +9,37 @@ import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 
+import java.util.List;
+
 public interface UserService {
 
-	List<UserResponseDto> getAllActiveUserDtos();
+    List<UserResponseDto> getAllActiveUserDtos();
 
-	List<User> getAllActiveUsers();
+    List<User> getAllActiveUsers();
 
-	void validateCredentials(CredentialsDto creds) throws NotAuthorizedException;
+    List<TweetResponseDto> getUserMentions(String username);
 
-	List<TweetResponseDto> getUserMentions(String username);
+    UserResponseDto getUserByName(String username);
 
-	UserResponseDto getUserByName(String username);
+    User getUserByCredentials(CredentialsDto creds) throws NotAuthorizedException;
 
-	User getUserByCredentials(CredentialsDto creds) throws NotFoundException;
+    UserResponseDto createUser(UserRequestDto userRequestDto);
 
-	UserResponseDto createUser(UserRequestDto userRequestDto);
+    List<UserResponseDto> getUserFollowing(String username);
 
-	List<UserResponseDto> getUserFollowing(String username);
+    List<User> updateUsers(List<User> users);
 
-  List<User> updateUsers(List<User> users);
+    UserResponseDto updateUser(String username, UserRequestDto incomingUser);
 
-	UserResponseDto updateUser(String username, UserRequestDto incomingUser);
+    List<UserResponseDto> getUserFollowers(String username);
 
-  List<UserResponseDto> getUserFollowers(String username);
+    List<TweetResponseDto> getUserFeed(String username);
 
-  List<TweetResponseDto> getUserFeed(String username);
+    void setFollowing(String username, CredentialsDto followingUser);
 
-  String setFollowing(String username, CredentialsDto followingUser);
+    void setUnfollow(String username, CredentialsDto unfollowUser);
 
-	String setUnfollow(String username, CredentialsDto unfollowUser);
+    UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
 
-  UserResponseDto deleteUser(String username, CredentialsDto credentialsDto) throws NotFoundException;
-
-	void likeTweet(Tweet tweet, User user);
+    void likeTweet(Tweet tweet, User user);
 }
