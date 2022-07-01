@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.cooksys.socialmedia.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import com.cooksys.socialmedia.dtos.ContextDto;
@@ -40,6 +41,10 @@ public class TweetServiceImpl implements TweetService {
     private final TweetMapper tweetMapper;
     private final UserMapper userMapper;
     private final HashtagMapper hashtagMapper;
+
+    public interface TweetProps {
+        Tweet setupTweetEntity(TweetRequestDto dto);
+    }
 
     @Override
     public Tweet getTweetById(Long id) {
@@ -145,11 +150,8 @@ public class TweetServiceImpl implements TweetService {
         return tweetMapper.entityToDto(tweetToDelete.get());
     }
 
-    @Override
-    public TweetResponseDto createTweet(TweetRequestDto tweetReqDto) {
-        Tweet postedTweet = tweetMapper.requestDtoToEntity(tweetReqDto);
-
-        postedTweet.setAuthor(userService.getUserByCredentials(tweetReqDto.getCredentials()));
+    public TweetResponseDto createTweet(TweetProps tweetProps, TweetRequestDto tweetReqDto) throws BadRequestException {
+        Tweet postedTweet = tweetProps.setupTweetEntity(tweetReqDto);
 
         Tweet insertedTweet = tweetRepository.saveAndFlush(postedTweet);
         parseForUserMentions(insertedTweet);
@@ -242,4 +244,9 @@ public class TweetServiceImpl implements TweetService {
 		contextDto.setAfter(tweetMapper.entitiesToDtos(afterTweets));
 		return contextDto;
 	}
+
+    @Override
+    public TweetResponseDto createReplyTweet(TweetRequestDto reqTweet) {
+        return null;
+    }
 }
