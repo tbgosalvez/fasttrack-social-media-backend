@@ -74,6 +74,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserRequestDto userRequestDto) {
+    	if (userRequestDto.getCredentials() == null || userRequestDto.getCredentials().getUsername() == null || userRequestDto.getCredentials().getPassword() == null) {
+    		throw new NotAuthorizedException("No credentials present");
+    	}
+    	if (userRequestDto.getProfile() == null) {
+    		throw new NotAuthorizedException("No profile present");
+    	}
         User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
         if (!validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername())) {
             throw new NotAuthorizedException("Username not available.");
