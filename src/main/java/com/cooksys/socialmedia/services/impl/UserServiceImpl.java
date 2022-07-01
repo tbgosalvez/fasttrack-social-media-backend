@@ -82,9 +82,10 @@ public class UserServiceImpl implements UserService {
 		User incomingUser = userMapper.requestDtoToEntity(userRequestDto);
 		List<User> allUsers = userRepository.findAll();
 		for(User user : allUsers) {
-			if(user.isDeleted() && user.getCredentials().getUsername().equals(incomingUser.getCredentials().getUsername())) {
+			if(user.getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())&&user.isDeleted()) {
 				incomingUser = user;
 				incomingUser.setDeleted(false);
+				return userMapper.entityToDto(userRepository.saveAndFlush(incomingUser));
 			}
 		}
 		if (!(validateService.isUserNameAvailable(incomingUser.getCredentials().getUsername()))&& !incomingUser.isDeleted()) {
